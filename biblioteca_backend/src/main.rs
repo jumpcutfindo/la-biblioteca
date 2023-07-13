@@ -8,7 +8,7 @@ use axum::{
     http::Uri, http::StatusCode,
     response::IntoResponse,
     Json, Router,
-    extract::{self, Query}
+    extract::{self, Query, Path}
 };
 
 use serde::{Deserialize, Serialize};
@@ -23,8 +23,8 @@ async fn main() {
     // Create router
     let app = axum::Router::new()
         .route("/", get(root))
-        .route("/books", get(get_books))
-        .route("/books", post(create_book));
+        .route("/books/:id", get(get_book).delete(delete_book))
+        .route("/books", get(get_books).post(create_book));
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
@@ -41,9 +41,23 @@ async fn root() -> &'static str {
     "Hello World!"
 }
 
+async fn get_book(
+    Path(id): Path<String>
+) -> (StatusCode, Json<Book>) {
+    tracing::debug!("GET /books with id: {:?}", id);
+
+    let book = Book {
+        id: 1,
+        name: "Alice in Wonderland".to_owned(),
+        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
+    };
+
+    (StatusCode::OK, Json(book))
+}
+
 // Retrieves all books
 async fn get_books(
-    extract::Query(params): Query<HashMap<String, String>>    
+    Query(params): Query<HashMap<String, String>>    
 ) -> (StatusCode, Json<Vec<Book>>) {
     tracing::debug!("GET /books with query params: {:?}", params);
     
@@ -75,6 +89,20 @@ async fn create_book(
     };
 
     (StatusCode::CREATED, Json(book))
+}
+
+async fn delete_book(
+    Path(id): Path<String>
+) -> (StatusCode, Json<Book>) {
+    tracing::debug!("DELETE /books with id: {:?}", id);
+
+    let book = Book {
+        id: 1,
+        name: "Alice in Wonderland".to_owned(),
+        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
+    };
+
+    (StatusCode::OK, Json(book))
 }
 
 #[derive(Deserialize)]
