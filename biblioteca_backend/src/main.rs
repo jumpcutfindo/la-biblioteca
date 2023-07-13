@@ -1,10 +1,14 @@
-use std::net::SocketAddr;
+use std::{
+    net::SocketAddr,
+    collections::HashMap
+};
 
 use axum::{
     routing::{get, post},
     http::Uri, http::StatusCode,
     response::IntoResponse,
-    Json, Router
+    Json, Router,
+    extract::{self, Query}
 };
 
 use serde::{Deserialize, Serialize};
@@ -38,7 +42,11 @@ async fn root() -> &'static str {
 }
 
 // Retrieves all books
-async fn get_books() -> (StatusCode, Json<Vec<Book>>) {
+async fn get_books(
+    extract::Query(params): Query<HashMap<String, String>>    
+) -> (StatusCode, Json<Vec<Book>>) {
+    tracing::debug!("GET /books with query params: {:?}", params);
+    
     let a = Book {
         id: 1,
         name: "Alice in Wonderland".to_owned(),
