@@ -1,11 +1,13 @@
 use std::net::SocketAddr;
 
 use axum::{
-    routing::{get},
-    http::StatusCode,
+    routing::{get, post},
+    http::Uri, http::StatusCode,
     response::IntoResponse,
-    Json, Router,
+    Json, Router
 };
+
+use serde::{Deserialize, Serialize};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +18,8 @@ async fn main() {
 
     // Create router
     let app = axum::Router::new()
-        .route("/", get(root));
+        .route("/", get(root))
+        .route("/books", post(create_book));
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
@@ -31,4 +34,29 @@ async fn main() {
 // Sample handler that responds with static string
 async fn root() -> &'static str {
     "Hello World!"
+}
+
+async fn create_book(
+    Json(payload): Json<CreateBookRequest>,
+) -> (StatusCode, Json<Book>) {
+    let book = Book {
+        id: 1,
+        name: payload.name,
+        description: payload.description,
+    };
+
+    (StatusCode::CREATED, Json(book))
+}
+
+#[derive(Deserialize)]
+struct CreateBookRequest {
+    name: String,
+    description: String,
+}
+
+#[derive(Serialize)]
+struct Book {
+    id: u64,
+    name: String,
+    description: String,
 }
