@@ -19,6 +19,7 @@ async fn main() {
     // Create router
     let app = axum::Router::new()
         .route("/", get(root))
+        .route("/books", get(get_books))
         .route("/books", post(create_book));
 
     // Run app using hyper, listens on port 3000
@@ -36,6 +37,26 @@ async fn root() -> &'static str {
     "Hello World!"
 }
 
+// Retrieves all books
+async fn get_books() -> (StatusCode, Json<Vec<Book>>) {
+    let a = Book {
+        id: 1,
+        name: "Alice in Wonderland".to_owned(),
+        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
+    };
+
+    let b = Book {
+        id: 2,
+        name: "Harry Potter".to_owned(),
+        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
+    };
+
+    let vec = vec![a, b];
+
+    (StatusCode::OK, Json(vec))
+}
+
+// Creates a new book
 async fn create_book(
     Json(payload): Json<CreateBookRequest>,
 ) -> (StatusCode, Json<Book>) {
