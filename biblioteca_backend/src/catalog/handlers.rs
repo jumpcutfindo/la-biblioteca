@@ -7,6 +7,7 @@ mod database;
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
 
 use database::{ add_book_to_db, get_all_books_from_db };
+use uuid::Uuid;
 
 use std::collections::HashMap;
 
@@ -21,7 +22,7 @@ pub async fn get_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
     tracing::debug!("GET /books with id: {:?}", id);
 
     let book = Book {
-        id: 1,
+        id: Uuid::new_v4().to_string(),
         name: "Alice in Wonderland".to_owned(),
         description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
     };
@@ -41,7 +42,7 @@ pub async fn get_books(
 // Creates a new book
 pub async fn create_book(Json(payload): Json<CreateBookRequest>) -> (StatusCode, Json<Book>) {
     let book = Book {
-        id: 1,
+        id: Uuid::new_v4().to_string(),
         name: payload.name,
         description: payload.description,
     };
@@ -54,7 +55,7 @@ pub async fn delete_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
     let book = Book {
-        id: 1,
+        id: Uuid::new_v4().to_string(),
         name: "Alice in Wonderland".to_owned(),
         description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
     };
@@ -72,7 +73,7 @@ pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusC
     (StatusCode::CREATED, Json(author))
 }
 
-pub async fn get_author(Path(id): Path<String>) -> (StatusCode, Json<Author>) {
+pub async fn get_author(Path(_id): Path<String>) -> (StatusCode, Json<Author>) {
     let author = Author {
         id: 1,
         name: "Bill Gates".to_owned(),

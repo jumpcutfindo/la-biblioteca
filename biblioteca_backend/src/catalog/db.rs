@@ -1,6 +1,6 @@
 use rusqlite:: { Connection, Result };
 
-use super::model::{ Book, Author };
+use super::model::Book;
 
 pub async fn add_book_to_db(book: Book) -> Result<Book> {
     let conn = Connection::open("library.db")?;

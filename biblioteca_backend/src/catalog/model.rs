@@ -8,7 +8,7 @@ pub struct CreateBookRequest {
 
 #[derive(Serialize)]
 pub struct Book {
-    pub id: u64,
+    pub id: String,
     pub name: String,
     pub description: String,
 }

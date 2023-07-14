@@ -1,4 +1,5 @@
 use rusqlite::{Connection, Result};
+use uuid::Uuid;
 
 use crate::catalog_model::Book;
 
@@ -9,7 +10,7 @@ pub fn setup_db() -> Result<()> {
     tracing::debug!("Creating table 'books'...");
     conn.execute(
         "CREATE TABLE IF NOT EXISTS books (
-            id              INTEGER PRIMARY KEY,
+            id              TEXT PRIMARY KEY,
             name            TEXT NOT NULL,
             description     TEXT NOT NULL
         )", 
@@ -24,7 +25,7 @@ pub fn insert_mock_data() -> Result<()> {
     let conn = Connection::open("library.db")?;
 
     let book = Book {
-        id: 0,
+        id: Uuid::new_v4().to_string(),
         name: "Harry Potter and the Philosopher's Stone".to_string(),
         description: "The boy who lived starts his journey.".to_string(),
     };
