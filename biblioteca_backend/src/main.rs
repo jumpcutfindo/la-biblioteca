@@ -1,6 +1,8 @@
 #[path = "./catalog/model.rs"] mod catalog_model;
 #[path = "./catalog/handlers.rs"] mod catalog_handlers;
 
+#[path = "./mock/database.rs"] mod mock_db;
+
 use std::net::SocketAddr;
 
 use axum::routing::{get, post};
@@ -9,12 +11,17 @@ use catalog_handlers::{
     create_book, get_book, get_books, delete_book, create_author, get_author
 };
 
+use mock_db::setup_db;
+
 #[tokio::main]
 async fn main() {
     // Initialize tracing
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
+
+    // Create an in-memory db
+    let _ = setup_db().await;
 
     // Create router
     let app = axum::Router::new()
