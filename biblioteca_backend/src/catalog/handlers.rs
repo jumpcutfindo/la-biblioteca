@@ -1,7 +1,12 @@
 #[path = "./model.rs"]
 mod model;
 
+#[path = "./db.rs"]
+mod database;
+
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
+
+use database::{ add_book_to_db, get_all_books_from_db };
 
 use std::collections::HashMap;
 
@@ -30,21 +35,7 @@ pub async fn get_books(
 ) -> (StatusCode, Json<Vec<Book>>) {
     tracing::debug!("GET /books with query params: {:?}", params);
 
-    let a = Book {
-        id: 1,
-        name: "Alice in Wonderland".to_owned(),
-        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
-    };
-
-    let b = Book {
-        id: 2,
-        name: "Harry Potter".to_owned(),
-        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
-    };
-
-    let vec = vec![a, b];
-
-    (StatusCode::OK, Json(vec))
+    (StatusCode::OK, Json(get_all_books_from_db().await.unwrap()))
 }
 
 // Creates a new book
@@ -55,7 +46,7 @@ pub async fn create_book(Json(payload): Json<CreateBookRequest>) -> (StatusCode,
         description: payload.description,
     };
 
-    (StatusCode::CREATED, Json(book))
+    (StatusCode::CREATED, Json(add_book_to_db(book).await.unwrap()))
 }
 
 // Deletes a specific book
