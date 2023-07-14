@@ -11,7 +11,9 @@ use catalog_handlers::{
     create_book, get_book, get_books, delete_book, create_author, get_author
 };
 
-use mock_db::setup_db;
+use mock_db::{ 
+    setup_db, insert_mock_data
+};
 
 #[tokio::main]
 async fn main() {
@@ -22,6 +24,7 @@ async fn main() {
 
     // Create an in-memory db
     let _ = setup_db().await;
+    let _ = insert_mock_data();
 
     // Create router
     let app = axum::Router::new()

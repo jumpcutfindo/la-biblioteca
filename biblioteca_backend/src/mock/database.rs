@@ -14,6 +14,12 @@ pub async fn setup_db() -> Result<()> {
         (),
     );
 
+    Ok(())
+}
+
+pub async fn insert_mock_data() -> Result<()> {
+    let conn = Connection::open_in_memory()?;
+
     let book = Book {
         id: 0,
         name: "Harry Potter and the Philosopher's Stone".to_string(),
