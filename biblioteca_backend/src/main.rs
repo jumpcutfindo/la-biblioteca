@@ -3,10 +3,10 @@
 
 use std::net::SocketAddr;
 
-use axum::routing::get;
+use axum::routing::{get, post};
 
 use catalog_handlers::{
-    create_book, get_book, get_books, delete_book
+    create_book, get_book, get_books, delete_book, create_author, get_author
 };
 
 #[tokio::main]
@@ -20,7 +20,9 @@ async fn main() {
     let app = axum::Router::new()
         .route("/", get(root))
         .route("/books/:id", get(get_book).delete(delete_book))
-        .route("/books", get(get_books).post(create_book));
+        .route("/books", get(get_books).post(create_book))
+        .route("/authors/:id", get(get_author))
+        .route("/authors", post(create_author));
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

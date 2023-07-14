@@ -12,3 +12,17 @@ pub struct Book {
     pub name: String,
     pub description: String,
 }
+
+
+#[derive(Deserialize)]
+pub struct CreateAuthorRequest {
+    pub name: String,
+    pub country: String,
+}
+
+#[derive(Serialize)]
+pub struct Author {
+    pub id: u64,
+    pub name: String,
+    pub country: String,
+}

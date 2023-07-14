@@ -1,19 +1,18 @@
-#[path = "./model.rs"] mod model;
+#[path = "./model.rs"]
+mod model;
 
-use model::{Book, CreateBookRequest};
+use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
 
 use std::collections::HashMap;
 
 use axum::{
+    extract::{Path, Query},
     http::StatusCode,
     Json,
-    extract::{Query, Path}
 };
 
 // Retrieves a specific book, by id
-pub async fn get_book(
-    Path(id): Path<String>
-) -> (StatusCode, Json<Book>) {
+pub async fn get_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
     tracing::debug!("GET /books with id: {:?}", id);
 
     let book = Book {
@@ -27,10 +26,10 @@ pub async fn get_book(
 
 // Retrieves all books
 pub async fn get_books(
-    Query(params): Query<HashMap<String, String>>    
+    Query(params): Query<HashMap<String, String>>,
 ) -> (StatusCode, Json<Vec<Book>>) {
     tracing::debug!("GET /books with query params: {:?}", params);
-    
+
     let a = Book {
         id: 1,
         name: "Alice in Wonderland".to_owned(),
@@ -49,9 +48,7 @@ pub async fn get_books(
 }
 
 // Creates a new book
-pub async fn create_book(
-    Json(payload): Json<CreateBookRequest>,
-) -> (StatusCode, Json<Book>) {
+pub async fn create_book(Json(payload): Json<CreateBookRequest>) -> (StatusCode, Json<Book>) {
     let book = Book {
         id: 1,
         name: payload.name,
@@ -62,9 +59,7 @@ pub async fn create_book(
 }
 
 // Deletes a specific book
-pub async fn delete_book(
-    Path(id): Path<String>
-) -> (StatusCode, Json<Book>) {
+pub async fn delete_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
     let book = Book {
@@ -74,4 +69,24 @@ pub async fn delete_book(
     };
 
     (StatusCode::OK, Json(book))
+}
+
+pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
+    let author = Author {
+        id: 1,
+        name: payload.name,
+        country: payload.country,
+    };
+
+    (StatusCode::CREATED, Json(author))
+}
+
+pub async fn get_author(Path(id): Path<String>) -> (StatusCode, Json<Author>) {
+    let author = Author {
+        id: 1,
+        name: "Bill Gates".to_owned(),
+        country: "US".to_owned(),
+    };
+
+    (StatusCode::OK, Json(author))
 }
