@@ -10,6 +10,7 @@ use axum::{
     extract::{Query, Path}
 };
 
+// Retrieves a specific book, by id
 pub async fn get_book(
     Path(id): Path<String>
 ) -> (StatusCode, Json<Book>) {
@@ -60,6 +61,7 @@ pub async fn create_book(
     (StatusCode::CREATED, Json(book))
 }
 
+// Deletes a specific book
 pub async fn delete_book(
     Path(id): Path<String>
 ) -> (StatusCode, Json<Book>) {

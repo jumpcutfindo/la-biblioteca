@@ -1,11 +1,11 @@
-mod model;
-mod handlers;
+#[path = "./catalog/model.rs"] mod catalog_model;
+#[path = "./catalog/handlers.rs"] mod catalog_handlers;
 
 use std::net::SocketAddr;
 
 use axum::routing::get;
 
-use handlers::{
+use catalog_handlers::{
     create_book, get_book, get_books, delete_book
 };
 
