@@ -47,3 +47,14 @@ pub async fn add_book_to_db(book: Book) -> Result<Book> {
 
     Ok(book)
 }
+
+pub async fn delete_book_from_db(id: Uuid) -> Result<()> {
+    let conn = Connection::open("library.db")?;
+
+    conn.execute(
+        "DELETE FROM books WHERE id = $1",
+        [id],
+    )?;
+
+    Ok(())
+}

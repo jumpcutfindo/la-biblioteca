@@ -33,13 +33,13 @@ pub struct BookCategory {
     pub genre_id: Uuid,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct CreateBookRequest {
     pub name: String,
     pub description: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct CreateAuthorRequest {
     pub name: String,
     pub country: String,

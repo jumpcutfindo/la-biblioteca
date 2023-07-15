@@ -6,7 +6,7 @@ mod database;
 
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
 
-use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db };
+use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db };
 use uuid::Uuid;
 
 use std::{collections::HashMap, str::FromStr};
@@ -57,6 +57,7 @@ pub async fn get_books(
 pub async fn create_book(
     Json(payload): Json<CreateBookRequest>
 ) -> (StatusCode, Json<Value>) {
+    tracing::debug!("POST /books with params: {:?}", payload);
     let book = Book {
         id: Uuid::new_v4(),
         name: payload.name,
@@ -75,16 +76,20 @@ pub async fn create_book(
 }
 
 // Deletes a specific book
-pub async fn delete_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
+pub async fn delete_book(
+    Path(id): Path<String>
+) -> (StatusCode, Json<Value>) {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
-    let book = Book {
-        id: Uuid::new_v4(),
-        name: "Alice in Wonderland".to_owned(),
-        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
-    };
-
-    (StatusCode::OK, Json(book))
+    match delete_book_from_db(Uuid::from_str(&id).unwrap()).await {
+        Ok(()) => {
+            return (StatusCode::OK, Json(json!({})))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({})))
+        }
+    }
 }
 
 pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
