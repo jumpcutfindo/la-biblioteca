@@ -65,7 +65,7 @@ pub async fn delete_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
 
 pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
     let author = Author {
-        id: 1,
+        id: Uuid::new_v4().to_string(),
         name: payload.name,
         country: payload.country,
     };
@@ -75,7 +75,7 @@ pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusC
 
 pub async fn get_author(Path(_id): Path<String>) -> (StatusCode, Json<Author>) {
     let author = Author {
-        id: 1,
+        id: Uuid::new_v4().to_string(),
         name: "Bill Gates".to_owned(),
         country: "US".to_owned(),
     };

@@ -10,6 +10,8 @@ The following are the expected set of APIs to be used:
 
 ## Catalog management
 
+### Book management
+
 | API                 | Functionality                                  |
 | ------------------- | ---------------------------------------------- |
 | `GET /books`        | Retrieves all the books present in the catalog |
@@ -17,3 +19,14 @@ The following are the expected set of APIs to be used:
 | `POST /books`       | Adds a book to the catalog                     |
 | `PUT /books/:id`    | Updates an existing book in the catalog        |
 | `DELETE /books/:id` | Deletes a specified book from the catalog      |
+
+### Author management
+
+| API                      | Functionality                                    |
+| ------------------------ | ------------------------------------------------ |
+| `GET /authors`           | Retrieves all the authors present in the catalog |
+| `GET /authors/:id`       | Retrieves the full details of an author          |
+| `GET /authors/:id/books` | Retrieves the books written by that author       |
+| `POST /authors`          | Adds an author to the catalog                    |
+| `PUT /authors/:id`       | Updates the author's information in the catalog  |
+| `DELETE /authors/:id`    | Deletes a specified author from the catalog      |
