@@ -6,7 +6,7 @@ mod database;
 
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
 
-use database::{ add_book_to_db, get_all_books_from_db };
+use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db };
 use uuid::Uuid;
 
 use std::collections::HashMap;
@@ -17,17 +17,23 @@ use axum::{
     Json,
 };
 
+use serde_json::{Value, json};
+
 // Retrieves a specific book, by id
-pub async fn get_book(Path(id): Path<String>) -> (StatusCode, Json<Book>) {
+pub async fn get_book(
+    Path(id): Path<String>
+) -> (StatusCode, Json<Value>) {
     tracing::debug!("GET /books with id: {:?}", id);
-
-    let book = Book {
-        id: Uuid::new_v4().to_string(),
-        name: "Alice in Wonderland".to_owned(),
-        description: "Lorem ipsum et amor de fulcus merudo".to_owned(),
+    
+    match get_book_from_db(id).await {
+        Ok(book) => {
+            return (StatusCode::OK, Json(json!(book)))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return (StatusCode::NOT_FOUND, Json(json!({})))
+        }
     };
-
-    (StatusCode::OK, Json(book))
 }
 
 // Retrieves all books
