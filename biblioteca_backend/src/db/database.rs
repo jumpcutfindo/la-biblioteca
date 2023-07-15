@@ -10,7 +10,7 @@ pub fn setup_db() -> Result<()> {
     tracing::debug!("Creating table 'books'...");
     conn.execute(
         "CREATE TABLE IF NOT EXISTS books (
-            id              TEXT PRIMARY KEY,
+            id              BLOB PRIMARY KEY,
             name            TEXT NOT NULL,
             description     TEXT NOT NULL
         )", 
@@ -25,7 +25,7 @@ pub fn insert_mock_data() -> Result<()> {
     let conn = Connection::open("library.db")?;
 
     let book = Book {
-        id: Uuid::new_v4().to_string(),
+        id: Uuid::new_v4(),
         name: "Harry Potter and the Philosopher's Stone".to_string(),
         description: "The boy who lived starts his journey.".to_string(),
     };

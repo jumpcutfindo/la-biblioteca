@@ -1,35 +1,36 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct Book {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub description: String,
 }
 
 #[derive(Serialize)]
 pub struct Category {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
 }
 
 #[derive(Serialize)]
 pub struct Author {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub country: String,
 }
 
 #[derive(Serialize)]
 pub struct BookAuthor {
-    pub book_id: String,
-    pub author_id: String,
+    pub book_id: Uuid,
+    pub author_id: Uuid,
 }
 
 #[derive(Serialize)]
-pub struct BookGenre {
-    pub book_id: String,
-    pub genre_id: String,
+pub struct BookCategory {
+    pub book_id: Uuid,
+    pub genre_id: Uuid,
 }
 
 #[derive(Deserialize)]

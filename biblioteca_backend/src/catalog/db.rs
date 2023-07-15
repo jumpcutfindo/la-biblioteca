@@ -1,4 +1,5 @@
-use rusqlite:: { Connection, Result };
+use rusqlite::{ Connection, Result };
+use uuid::Uuid;
 
 use super::model::Book;
 
@@ -21,7 +22,7 @@ pub async fn get_all_books_from_db() -> Result<Vec<Book>> {
     Ok(books)
 }
 
-pub async fn get_book_from_db(id: String) -> Result<Book> {
+pub async fn get_book_from_db(id: Uuid) -> Result<Book> {
     let conn = Connection::open("library.db")?;
 
     conn.query_row(
