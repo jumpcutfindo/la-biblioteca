@@ -39,10 +39,18 @@ pub async fn get_book(
 // Retrieves all books
 pub async fn get_books(
     Query(params): Query<HashMap<String, String>>,
-) -> (StatusCode, Json<Vec<Book>>) {
+) -> (StatusCode, Json<Value>) {
     tracing::debug!("GET /books with query params: {:?}", params);
 
-    (StatusCode::OK, Json(get_all_books_from_db().await.unwrap()))
+    match get_all_books_from_db().await {
+        Ok(books) => {
+            return (StatusCode::OK, Json(json!(books)))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({})))
+        }
+    }
 }
 
 // Creates a new book
