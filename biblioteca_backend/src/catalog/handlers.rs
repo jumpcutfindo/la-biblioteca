@@ -5,8 +5,9 @@ mod model;
 mod database;
 
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
-
 use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db };
+use crate::errors::Error;
+
 use uuid::Uuid;
 
 use std::{collections::HashMap, str::FromStr};
@@ -14,7 +15,7 @@ use std::{collections::HashMap, str::FromStr};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
-    Json,
+    Json, response::{Response, IntoResponse},
 };
 
 use serde_json::{Value, json};
@@ -22,16 +23,16 @@ use serde_json::{Value, json};
 // Retrieves a specific book, by id
 pub async fn get_book(
     Path(id): Path<String>
-) -> (StatusCode, Json<Value>) {
+) -> Result<Json<Book>, Error> {
     tracing::debug!("GET /books with id: {:?}", id);
     
     match get_book_from_db(Uuid::from_str(&id).unwrap()).await {
         Ok(book) => {
-            return (StatusCode::OK, Json(json!(book)))
+            return Ok(Json(book))
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return (StatusCode::NOT_FOUND, Json(json!({})))
+            return Err(Error::not_found())
         }
     };
 }
@@ -39,16 +40,16 @@ pub async fn get_book(
 // Retrieves all books
 pub async fn get_books(
     Query(params): Query<HashMap<String, String>>,
-) -> (StatusCode, Json<Value>) {
+) -> Result<Json<Vec<Book>>, Error> {
     tracing::debug!("GET /books with query params: {:?}", params);
 
     match get_all_books_from_db().await {
         Ok(books) => {
-            return (StatusCode::OK, Json(json!(books)))
+            return Ok(Json(books))
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({})))
+            return Err(Error::server_issue())
         },
     }
 }

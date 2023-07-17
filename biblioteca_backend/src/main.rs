@@ -2,6 +2,7 @@
 #[path = "./catalog/handlers.rs"] mod catalog_handlers;
 
 #[path = "./db/database.rs"] mod db;
+#[path = "./error.rs"] mod errors;
 
 use std::net::SocketAddr;
 
