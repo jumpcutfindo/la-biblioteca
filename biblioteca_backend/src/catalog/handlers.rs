@@ -57,7 +57,7 @@ pub async fn get_books(
 // Creates a new book
 pub async fn create_book(
     Json(payload): Json<CreateBookRequest>
-) -> (StatusCode, Json<Value>) {
+) -> Result<Json<Book>, Error> {
     tracing::debug!("POST /books with params: {:?}", payload);
     let book = Book {
         id: Uuid::new_v4(),
@@ -67,11 +67,11 @@ pub async fn create_book(
 
     match add_book_to_db(book).await {
         Ok(book) => {
-            return (StatusCode::CREATED, Json(json!(book)))
+            return Ok(Json(book))
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({})))
+            return Err(Error::server_issue())
         }
     }
 }
@@ -79,17 +79,17 @@ pub async fn create_book(
 // Deletes a specific book
 pub async fn delete_book(
     Path(id): Path<String>
-) -> (StatusCode, Json<Value>) {
+) -> Result<StatusCode, Error> {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
     match delete_book_from_db(Uuid::from_str(&id).unwrap()).await {
         Ok(()) => {
-            return (StatusCode::OK, Json(json!({})))
+            return Ok(StatusCode::NO_CONTENT)
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({})))
-        }
+            return Err(Error::server_issue())
+        },
     }
 }
 
