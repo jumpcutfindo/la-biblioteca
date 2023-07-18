@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
-use crate::catalog_model::Book;
+use crate::catalog::model::Book;
 
 pub fn setup_db() -> Result<()> {
     tracing::debug!("Setting up our in-memory, SQLite database...");

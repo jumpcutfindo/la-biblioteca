@@ -1,12 +1,6 @@
-#[path = "./model.rs"]
-mod model;
-
-#[path = "./db.rs"]
-mod database;
-
-use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
-use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db };
-use crate::{errors::Error, catalog_handlers::database::update_book_in_db, catalog_model::UpdateBookRequest};
+use super::model::{Author, Book, CreateAuthorRequest, CreateBookRequest, UpdateBookRequest};
+use super::db::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
+use super::super::error::Error;
 
 use uuid::Uuid;
 
@@ -15,10 +9,8 @@ use std::{collections::HashMap, str::FromStr};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
-    Json, response::{Response, IntoResponse},
+    Json,
 };
-
-use serde_json::{Value, json};
 
 // Retrieves a specific book, by id
 pub async fn get_book(

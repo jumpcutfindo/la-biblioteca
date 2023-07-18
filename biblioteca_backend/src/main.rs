@@ -1,15 +1,14 @@
-#[path = "./catalog/model.rs"] mod catalog_model;
-#[path = "./catalog/handlers.rs"] mod catalog_handlers;
-
-#[path = "./db/database.rs"] mod db;
-#[path = "./error.rs"] mod errors;
+mod catalog;
+mod db;
+mod error;
 
 use std::net::SocketAddr;
 
 use axum::routing::{get, post, delete, put};
 
-use catalog_handlers::{
-    create_book, get_book, get_books, delete_book, update_book, create_author, get_author
+use catalog::handler::{
+    create_book, get_book, get_books, delete_book, update_book,
+    create_author, get_author
 };
 
 use db::setup_db;
