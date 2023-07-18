@@ -1,4 +1,4 @@
-use super::model::{Author, Book, CreateAuthorRequest, CreateBookRequest, UpdateBookRequest};
+use super::model::{Book, CreateBookRequest, UpdateBookRequest};
 use super::db::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
 use super::super::error::Error;
 
@@ -107,24 +107,4 @@ pub async fn update_book(
             return Err(Error::server_issue())
         }
     }
-}
-
-pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
-    let author = Author {
-        id: Uuid::new_v4(),
-        name: payload.name,
-        country: payload.country,
-    };
-
-    (StatusCode::CREATED, Json(author))
-}
-
-pub async fn get_author(Path(_id): Path<String>) -> (StatusCode, Json<Author>) {
-    let author = Author {
-        id: Uuid::new_v4(),
-        name: "Bill Gates".to_owned(),
-        country: "US".to_owned(),
-    };
-
-    (StatusCode::OK, Json(author))
 }

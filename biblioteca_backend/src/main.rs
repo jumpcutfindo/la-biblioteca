@@ -6,9 +6,13 @@ use std::net::SocketAddr;
 
 use axum::routing::{get, post, delete, put};
 
-use catalog::handler::{
-    create_book, get_book, get_books, delete_book, update_book,
-    create_author, get_author
+use catalog::{ 
+    books::{
+        create_book, get_book, get_books, delete_book, update_book
+    },
+    authors::{
+        create_author, get_author
+    }
 };
 
 use db::setup_db;

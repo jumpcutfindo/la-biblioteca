@@ -1,4 +1,5 @@
-pub mod handler;
+pub mod books;
+pub mod authors;
 pub mod model;
 
 mod db;
