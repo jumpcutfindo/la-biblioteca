@@ -6,10 +6,10 @@
 
 use std::net::SocketAddr;
 
-use axum::routing::{get, post};
+use axum::routing::{get, post, delete, put};
 
 use catalog_handlers::{
-    create_book, get_book, get_books, delete_book, create_author, get_author
+    create_book, get_book, get_books, delete_book, update_book, create_author, get_author
 };
 
 use db::setup_db;
@@ -27,8 +27,11 @@ async fn main() {
     // Create router
     let app = axum::Router::new()
         .route("/", get(root))
-        .route("/books/:id", get(get_book).delete(delete_book))
-        .route("/books", get(get_books).post(create_book))
+        .route("/books/:id", get(get_book))
+        .route("/books/:id", delete(delete_book))
+        .route("/books/:id", put(update_book))
+        .route("/books", get(get_books))
+        .route("/books", post(create_book))
         .route("/authors/:id", get(get_author))
         .route("/authors", post(create_author));
 

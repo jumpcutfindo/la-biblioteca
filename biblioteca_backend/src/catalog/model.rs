@@ -40,6 +40,12 @@ pub struct CreateBookRequest {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UpdateBookRequest {
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CreateAuthorRequest {
     pub name: String,
     pub country: String,

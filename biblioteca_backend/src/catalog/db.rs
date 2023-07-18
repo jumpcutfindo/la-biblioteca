@@ -58,3 +58,19 @@ pub async fn delete_book_from_db(id: Uuid) -> Result<()> {
 
     Ok(())
 }
+
+pub async fn update_book_in_db(book: Book) -> Result<()> {
+    let conn = Connection::open("library.db")?;
+
+    conn.execute(
+        "UPDATE books
+        SET name = $1,
+            description = $2
+        WHERE
+            id = $3;
+        ",
+        (book.name, book.description, book.id),
+    )?;
+
+    Ok(())
+}

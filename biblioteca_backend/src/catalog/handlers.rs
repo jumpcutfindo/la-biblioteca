@@ -6,7 +6,7 @@ mod database;
 
 use model::{Author, Book, CreateAuthorRequest, CreateBookRequest};
 use database::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db };
-use crate::errors::Error;
+use crate::{errors::Error, catalog_handlers::database::update_book_in_db, catalog_model::UpdateBookRequest};
 
 use uuid::Uuid;
 
@@ -90,6 +90,30 @@ pub async fn delete_book(
             tracing::warn!("{}", err);
             return Err(Error::server_issue())
         },
+    }
+}
+
+// Updates a specific book
+pub async fn update_book(
+    Path(id): Path<String>,
+    Json(payload): Json<UpdateBookRequest>
+) -> Result<StatusCode, Error> {
+    tracing::debug!("PUT /books with id: {:?}", id);
+
+    let book = Book {
+        id: Uuid::from_str(&id).unwrap(),
+        name: payload.name,
+        description: payload.description,
+    };
+
+    match update_book_in_db(book).await {
+        Ok(()) => {
+            return Ok(StatusCode::NO_CONTENT)
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
     }
 }
 
