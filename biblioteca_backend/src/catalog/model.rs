@@ -15,13 +15,6 @@ pub struct Category {
 }
 
 #[derive(Serialize)]
-pub struct Author {
-    pub id: Uuid,
-    pub name: String,
-    pub country: String,
-}
-
-#[derive(Serialize)]
 pub struct BookAuthor {
     pub book_id: Uuid,
     pub author_id: Uuid,
@@ -45,8 +38,27 @@ pub struct UpdateBookRequest {
     pub description: String,
 }
 
+#[derive(Serialize)]
+pub struct Author {
+    pub id: Uuid,
+    pub name: String,
+    pub description: String,
+    pub country: String,
+    pub language: String,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct CreateAuthorRequest {
     pub name: String,
+    pub description: String,
     pub country: String,
+    pub language: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateAuthorRequest {
+    pub name: String,
+    pub description: String,
+    pub country: String,
+    pub language: String,
 }

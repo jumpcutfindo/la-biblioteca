@@ -16,6 +16,18 @@ pub fn setup_db() -> Result<()> {
         )", 
         (),
     )?;
+
+    tracing::debug!("Creating table 'authors'...");
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS authors (
+            id              BLOB PRIMARY KEY,
+            name            TEXT NOT NULL,
+            description     TEXT,
+            country         TEXT NOT NULL,
+            language        TEXT NOT NULL
+        )",
+        ()
+    )?;
     
     tracing::debug!("Database setup complete! :)");
     Ok(())
