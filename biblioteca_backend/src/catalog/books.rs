@@ -7,13 +7,25 @@ use uuid::Uuid;
 use std::{collections::HashMap, str::FromStr};
 
 use axum::{
+    Router,
+    routing::{get, delete, put, post},
     extract::{Path, Query},
     http::StatusCode,
     Json,
 };
 
+pub fn books_router() -> Router {
+    Router::new()
+        .route("/books/:id", get(get_book))
+        .route("/books/:id", delete(delete_book))
+        .route("/books/:id", put(update_book))
+        .route("/books", get(get_books))
+        .route("/books", post(create_book))
+}
+
+
 // Retrieves a specific book, by id
-pub async fn get_book(
+async fn get_book(
     Path(id): Path<String>
 ) -> Result<Json<Book>, Error> {
     tracing::debug!("GET /books with id: {:?}", id);
@@ -30,7 +42,7 @@ pub async fn get_book(
 }
 
 // Retrieves all books
-pub async fn get_books(
+async fn get_books(
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Book>>, Error> {
     tracing::debug!("GET /books with query params: {:?}", params);
@@ -47,7 +59,7 @@ pub async fn get_books(
 }
 
 // Creates a new book
-pub async fn create_book(
+async fn create_book(
     Json(payload): Json<CreateBookRequest>
 ) -> Result<Json<Book>, Error> {
     tracing::debug!("POST /books with params: {:?}", payload);
@@ -69,7 +81,7 @@ pub async fn create_book(
 }
 
 // Deletes a specific book
-pub async fn delete_book(
+async fn delete_book(
     Path(id): Path<String>
 ) -> Result<StatusCode, Error> {
     tracing::debug!("DELETE /books with id: {:?}", id);
@@ -86,7 +98,7 @@ pub async fn delete_book(
 }
 
 // Updates a specific book
-pub async fn update_book(
+async fn update_book(
     Path(id): Path<String>,
     Json(payload): Json<UpdateBookRequest>
 ) -> Result<StatusCode, Error> {

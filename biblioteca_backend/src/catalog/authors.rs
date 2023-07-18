@@ -1,9 +1,15 @@
-use axum::{Json, http::StatusCode, extract::Path};
+use axum::{Json, http::StatusCode, extract::Path, Router, routing::{get, post, put, delete}};
 use uuid::Uuid;
 
 use super::model::{Author, CreateAuthorRequest, UpdateAuthorRequest};
 
-pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
+pub fn authors_router() -> Router {
+    Router::new()
+        .route("/authors/:id", get(get_author))
+        .route("/authors", post(create_author))
+}
+
+async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
     let author = Author {
         id: Uuid::new_v4(),
         name: payload.name,
@@ -15,18 +21,18 @@ pub async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusC
     (StatusCode::CREATED, Json(author))
 }
 
-pub async fn get_author(Path(id): Path<String>) {
+async fn get_author(Path(id): Path<String>) {
 
 }
 
-pub async fn get_authors() {
+async fn get_authors() {
 
 }
 
-pub async fn delete_author(Path(id): Path<String>) {
+async fn delete_author(Path(id): Path<String>) {
 
 }
 
-pub async fn update_author(Json(payload): Json<UpdateAuthorRequest>) {
+async fn update_author(Json(payload): Json<UpdateAuthorRequest>) {
     
 }

@@ -4,15 +4,14 @@ mod error;
 
 use std::net::SocketAddr;
 
-use axum::routing::{get, post, delete, put};
+use axum::{
+    Router,
+    routing::{get, post, delete, put},
+};
 
 use catalog::{ 
-    books::{
-        create_book, get_book, get_books, delete_book, update_book
-    },
-    authors::{
-        create_author, get_author
-    }
+    books::books_router,
+    authors::authors_router,
 };
 
 use db::setup_db;
@@ -28,15 +27,10 @@ async fn main() {
     setup_db().unwrap();
 
     // Create router
-    let app = axum::Router::new()
-        .route("/", get(root))
-        .route("/books/:id", get(get_book))
-        .route("/books/:id", delete(delete_book))
-        .route("/books/:id", put(update_book))
-        .route("/books", get(get_books))
-        .route("/books", post(create_book))
-        .route("/authors/:id", get(get_author))
-        .route("/authors", post(create_author));
+    let app = Router::new()
+        .merge(books_router())
+        .merge(authors_router())
+        .route("/", get(root));
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
