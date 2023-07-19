@@ -6,7 +6,7 @@ use std::net::SocketAddr;
 
 use axum::{
     Router,
-    routing::get,
+    routing::get, extract::State,
 };
 
 use catalog::{ 
@@ -15,6 +15,13 @@ use catalog::{
 };
 
 use database::setup_db;
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+
+#[derive(Clone)]
+pub struct AppState {
+    db_pool: Pool<SqliteConnectionManager>,
+}
 
 #[tokio::main]
 async fn main() {
@@ -24,13 +31,18 @@ async fn main() {
         .init();
 
     // Create an in-memory db
-    let conn = setup_db().unwrap();
+    let pool = setup_db().unwrap();
+
+    let state = AppState {
+        db_pool: pool,
+    };
 
     // Create router
     let app = Router::new()
         .merge(books_router())
         .merge(authors_router())
-        .route("/", get(root));
+        .route("/", get(root))
+        .with_state(state);
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

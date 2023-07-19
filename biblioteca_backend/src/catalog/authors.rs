@@ -1,9 +1,11 @@
+use crate::AppState;
+
 use axum::{Json, http::StatusCode, extract::Path, Router, routing::{get, post, put, delete}};
 use uuid::Uuid;
 
 use super::model::{Author, CreateAuthorRequest, UpdateAuthorRequest};
 
-pub fn authors_router() -> Router {
+pub fn authors_router() -> Router<AppState> {
     Router::new()
         .route("/authors/:id", get(get_author))
         .route("/authors", post(create_author))

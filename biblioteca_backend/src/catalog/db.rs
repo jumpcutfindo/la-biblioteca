@@ -1,5 +1,8 @@
+use axum::extract::State;
 use rusqlite::{ Connection, Result };
 use uuid::Uuid;
+
+use crate::AppState;
 
 use super::model::{Book, Author};
 
@@ -22,10 +25,11 @@ pub async fn get_all_books_from_db() -> Result<Vec<Book>> {
     Ok(books)
 }
 
-pub async fn get_book_from_db(id: Uuid) -> Result<Book> {
-    let conn = Connection::open("library.db")?;
-
-    conn.query_row(
+pub async fn get_book_from_db(
+    State(state): State<AppState>, 
+    id: Uuid,
+) -> Result<Book> {
+    state.db_pool.get().unwrap().query_row(
         "SELECT * FROM books WHERE id = $1", 
         [id], 
         |row| {

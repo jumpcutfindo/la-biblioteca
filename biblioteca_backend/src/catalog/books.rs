@@ -1,7 +1,10 @@
+use crate::AppState;
+
 use super::model::{Book, CreateBookRequest, UpdateBookRequest};
 use super::db::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
 use super::super::error::Error;
 
+use axum::extract::State;
 use uuid::Uuid;
 
 use std::{collections::HashMap, str::FromStr};
@@ -14,7 +17,7 @@ use axum::{
     Json,
 };
 
-pub fn books_router() -> Router {
+pub fn books_router() -> Router<AppState> {
     Router::new()
         .route("/books/:id", get(get_book))
         .route("/books/:id", delete(delete_book))
@@ -26,11 +29,12 @@ pub fn books_router() -> Router {
 
 // Retrieves a specific book, by id
 async fn get_book(
-    Path(id): Path<String>
+    Path(id): Path<String>,
+    state: State<AppState>,
 ) -> Result<Json<Book>, Error> {
     tracing::debug!("GET /books with id: {:?}", id);
     
-    match get_book_from_db(Uuid::from_str(&id).unwrap()).await {
+    match get_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
         Ok(book) => {
             return Ok(Json(book))
         },
