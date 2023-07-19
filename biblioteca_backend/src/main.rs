@@ -1,12 +1,12 @@
 mod catalog;
-mod db;
+mod database;
 mod error;
 
 use std::net::SocketAddr;
 
 use axum::{
     Router,
-    routing::{get, post, delete, put},
+    routing::get,
 };
 
 use catalog::{ 
@@ -14,7 +14,7 @@ use catalog::{
     authors::authors_router,
 };
 
-use db::setup_db;
+use database::setup_db;
 
 #[tokio::main]
 async fn main() {
