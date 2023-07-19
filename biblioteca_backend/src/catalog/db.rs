@@ -1,7 +1,7 @@
 use rusqlite::{ Connection, Result };
 use uuid::Uuid;
 
-use super::model::Book;
+use super::model::{Book, Author};
 
 pub async fn get_all_books_from_db() -> Result<Vec<Book>> {
     let conn = Connection::open("library.db")?;
@@ -73,4 +73,21 @@ pub async fn update_book_in_db(book: Book) -> Result<()> {
     )?;
 
     Ok(())
+}
+
+pub async fn get_all_authors_from_db() {
+}
+
+pub async fn get_author_from_db(id: Uuid) {
+}
+
+pub async fn add_author_to_db(author: Author) {
+}
+
+pub async fn delete_author_from_db(id: Uuid) {
+
+}
+
+pub async fn update_author_in_db(author: Author) {
+    
 }
