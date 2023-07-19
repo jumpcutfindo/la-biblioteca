@@ -1,36 +1,44 @@
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::{Connection, Result};
 use uuid::Uuid;
 
 use crate::catalog::model::Book;
 
-pub fn setup_db() -> Result<()> {
+pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
     tracing::debug!("Setting up our in-memory, SQLite database...");
-    let conn = Connection::open("library.db")?;
+
+    let manager = SqliteConnectionManager::file("library.db");
+    let pool = r2d2::Pool::new(manager).unwrap();
 
     tracing::debug!("Creating table 'books'...");
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS books (
-            id              BLOB PRIMARY KEY,
-            name            TEXT NOT NULL,
-            description     TEXT NOT NULL
-        )", 
-        (),
-    )?;
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS books (
+                id              BLOB PRIMARY KEY,
+                name            TEXT NOT NULL,
+                description     TEXT NOT NULL
+            )", 
+            (),
+        )?;
 
     tracing::debug!("Creating table 'authors'...");
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS authors (
-            id              BLOB PRIMARY KEY,
-            name            TEXT NOT NULL,
-            description     TEXT,
-            country         TEXT NOT NULL,
-            language        TEXT NOT NULL
-        )",
-        ()
-    )?;
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS authors (
+                id              BLOB PRIMARY KEY,
+                name            TEXT NOT NULL,
+                description     TEXT,
+                country         TEXT NOT NULL,
+                language        TEXT NOT NULL
+            )",
+            ()
+        )?;
     
     tracing::debug!("Database setup complete! :)");
-    Ok(())
+    Ok(pool)
 }
 
 pub fn insert_mock_data() -> Result<()> {

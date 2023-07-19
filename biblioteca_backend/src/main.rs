@@ -24,7 +24,7 @@ async fn main() {
         .init();
 
     // Create an in-memory db
-    setup_db().unwrap();
+    let conn = setup_db().unwrap();
 
     // Create router
     let app = Router::new()
