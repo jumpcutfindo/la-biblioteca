@@ -126,7 +126,8 @@ pub async fn get_author_from_db(
 }
 
 pub async fn add_author_to_db(
-    State(state): State<AppState>,author: Author
+    State(state): State<AppState>,
+    author: Author,
 ) -> Result<Author> {
     state.db_pool.get().unwrap().execute(
         "INSERT INTO authors (id, name, description, country, language) VALUES (?1, ?2, ?3, ?4, ?5)",
@@ -136,8 +137,16 @@ pub async fn add_author_to_db(
     Ok(author)
 }
 
-pub async fn delete_author_from_db(id: Uuid) {
+pub async fn delete_author_from_db(
+    State(state): State<AppState>,
+    id: Uuid
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
+        "DELETE FROM authors WHERE id = $1",
+        [id],
+    )?;
 
+    Ok(())
 }
 
 pub async fn update_author_in_db(author: Author) {
