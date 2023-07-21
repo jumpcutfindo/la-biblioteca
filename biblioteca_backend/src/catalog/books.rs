@@ -29,8 +29,8 @@ pub fn books_router() -> Router<AppState> {
 
 // Retrieves a specific book, by id
 async fn get_book(
-    Path(id): Path<String>,
     state: State<AppState>,
+    Path(id): Path<String>,
 ) -> Result<Json<Book>, Error> {
     tracing::debug!("GET /books with id: {:?}", id);
     
@@ -47,11 +47,12 @@ async fn get_book(
 
 // Retrieves all books
 async fn get_books(
+    state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Book>>, Error> {
     tracing::debug!("GET /books with query params: {:?}", params);
 
-    match get_all_books_from_db().await {
+    match get_all_books_from_db(state).await {
         Ok(books) => {
             return Ok(Json(books))
         },
@@ -64,7 +65,8 @@ async fn get_books(
 
 // Creates a new book
 async fn create_book(
-    Json(payload): Json<CreateBookRequest>
+    state: State<AppState>,
+    Json(payload): Json<CreateBookRequest>,
 ) -> Result<Json<Book>, Error> {
     tracing::debug!("POST /books with params: {:?}", payload);
     let book = Book {
@@ -73,7 +75,7 @@ async fn create_book(
         description: payload.description,
     };
 
-    match add_book_to_db(book).await {
+    match add_book_to_db(state, book).await {
         Ok(book) => {
             return Ok(Json(book))
         },
@@ -86,11 +88,12 @@ async fn create_book(
 
 // Deletes a specific book
 async fn delete_book(
-    Path(id): Path<String>
+    state: State<AppState>,
+    Path(id): Path<String>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
-    match delete_book_from_db(Uuid::from_str(&id).unwrap()).await {
+    match delete_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
         Ok(()) => {
             return Ok(StatusCode::NO_CONTENT)
         },
@@ -103,8 +106,9 @@ async fn delete_book(
 
 // Updates a specific book
 async fn update_book(
+    state: State<AppState>,
     Path(id): Path<String>,
-    Json(payload): Json<UpdateBookRequest>
+    Json(payload): Json<UpdateBookRequest>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!("PUT /books with id: {:?}", id);
 
@@ -114,7 +118,7 @@ async fn update_book(
         description: payload.description,
     };
 
-    match update_book_in_db(book).await {
+    match update_book_in_db(state, book).await {
         Ok(()) => {
             return Ok(StatusCode::NO_CONTENT)
         },

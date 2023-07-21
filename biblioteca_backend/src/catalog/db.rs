@@ -6,8 +6,10 @@ use crate::AppState;
 
 use super::model::{Book, Author};
 
-pub async fn get_all_books_from_db() -> Result<Vec<Book>> {
-    let conn = Connection::open("library.db")?;
+pub async fn get_all_books_from_db(
+    State(state): State<AppState>,
+) -> Result<Vec<Book>> {
+    let conn = state.db_pool.get().unwrap();
 
     let mut stmt = conn.prepare("SELECT * FROM books")?;
 
@@ -41,10 +43,11 @@ pub async fn get_book_from_db(
         })
 }
 
-pub async fn add_book_to_db(book: Book) -> Result<Book> {
-    let conn = Connection::open("library.db")?;
-
-    conn.execute(
+pub async fn add_book_to_db(
+    State(state): State<AppState>,
+    book: Book,
+) -> Result<Book> {
+    state.db_pool.get().unwrap().execute(
         "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
         (&book.id, &book.name, &book.description),
     )?;
@@ -52,10 +55,11 @@ pub async fn add_book_to_db(book: Book) -> Result<Book> {
     Ok(book)
 }
 
-pub async fn delete_book_from_db(id: Uuid) -> Result<()> {
-    let conn = Connection::open("library.db")?;
-
-    conn.execute(
+pub async fn delete_book_from_db(
+    State(state): State<AppState>,
+    id: Uuid
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
         "DELETE FROM books WHERE id = $1",
         [id],
     )?;
@@ -63,10 +67,11 @@ pub async fn delete_book_from_db(id: Uuid) -> Result<()> {
     Ok(())
 }
 
-pub async fn update_book_in_db(book: Book) -> Result<()> {
-    let conn = Connection::open("library.db")?;
-
-    conn.execute(
+pub async fn update_book_in_db(
+    State(state): State<AppState>,
+    book: Book,
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
         "UPDATE books
         SET name = $1,
             description = $2
