@@ -107,7 +107,22 @@ pub async fn get_all_authors_from_db(
     Ok(authors)
 }
 
-pub async fn get_author_from_db(id: Uuid) {
+pub async fn get_author_from_db(
+    State(state): State<AppState>, 
+    id: Uuid,
+) -> Result<Author> {
+    state.db_pool.get().unwrap().query_row(
+        "SELECT * FROM authors WHERE id = $1",
+        [id],
+        |row| {
+            Ok(Author {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                description: row.get(2)?,
+                country: row.get(3)?,
+                language: row.get(4)?,
+            })
+        })
 }
 
 pub async fn add_author_to_db(
