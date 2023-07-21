@@ -110,7 +110,15 @@ pub async fn get_all_authors_from_db(
 pub async fn get_author_from_db(id: Uuid) {
 }
 
-pub async fn add_author_to_db(author: Author) {
+pub async fn add_author_to_db(
+    State(state): State<AppState>,author: Author
+) -> Result<Author> {
+    state.db_pool.get().unwrap().execute(
+        "INSERT INTO authors (id, name, description, country, language) VALUES (?1, ?2, ?3, ?4, ?5)",
+        (&author.id, &author.name, &author.description, &author.country, &author.language),
+    )?;
+
+    Ok(author)
 }
 
 pub async fn delete_author_from_db(id: Uuid) {

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Book {
     pub id: Uuid,
     pub name: String,
@@ -38,7 +38,7 @@ pub struct UpdateBookRequest {
     pub description: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Author {
     pub id: Uuid,
     pub name: String,

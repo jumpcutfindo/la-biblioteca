@@ -5,7 +5,7 @@ use crate::{AppState, error::Error, catalog::db::get_all_authors_from_db};
 use axum::{Json, http::StatusCode, extract::{Path, Query, State}, Router, routing::{get, post, put, delete}};
 use uuid::Uuid;
 
-use super::model::{Author, CreateAuthorRequest, UpdateAuthorRequest};
+use super::{model::{Author, CreateAuthorRequest, UpdateAuthorRequest}, db::add_author_to_db};
 
 pub fn authors_router() -> Router<AppState> {
     Router::new()
@@ -35,8 +35,11 @@ async fn get_authors(
 }
 
 async fn create_author(
-    Json(payload): Json<CreateAuthorRequest>
-) -> (StatusCode, Json<Author>) {
+    state: State<AppState>,
+    Json(payload): Json<CreateAuthorRequest>,
+) -> Result<Json<Author>, Error> {
+    tracing::debug!("POST /authors with params: {:?}", payload);
+
     let author = Author {
         id: Uuid::new_v4(),
         name: payload.name,
@@ -45,7 +48,15 @@ async fn create_author(
         language: payload.language,
     };
 
-    (StatusCode::CREATED, Json(author))
+    match add_author_to_db(state, author).await {
+        Ok(author) => {
+            return Ok(Json(author))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
+    }
 }
 
 async fn delete_author(Path(id): Path<String>) {
