@@ -149,6 +149,21 @@ pub async fn delete_author_from_db(
     Ok(())
 }
 
-pub async fn update_author_in_db(author: Author) {
-    
+pub async fn update_author_in_db(
+    State(state): State<AppState>,
+    author: Author
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
+        "UPDATE authors
+        SET name = $1,
+            description = $2,
+            country = $3,
+            language = $4
+        WHERE
+            id = $5;
+        ",
+        (author.name, author.description, author.country, author.language, author.id),
+    )?;
+
+    Ok(())
 }

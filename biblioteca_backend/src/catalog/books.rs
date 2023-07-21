@@ -26,7 +26,6 @@ pub fn books_router() -> Router<AppState> {
         .route("/books", post(create_book))
 }
 
-
 // Retrieves a specific book, by id
 async fn get_book(
     state: State<AppState>,
