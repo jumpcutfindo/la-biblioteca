@@ -84,7 +84,27 @@ pub async fn update_book_in_db(
     Ok(())
 }
 
-pub async fn get_all_authors_from_db() {
+pub async fn get_all_authors_from_db(
+    State(state): State<AppState>,
+) -> Result<Vec<Author>> {
+    let conn = state.db_pool.get().unwrap();
+
+    let mut stmt = conn.prepare("SELECT * FROM authors")?;
+
+    let authors = stmt
+    .query_map([], |row| {
+        Ok(Author {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            description: row.get(2)?,
+            country: row.get(3)?,
+            language: row.get(4)?,
+        })
+    })?
+    .map(|author| author.unwrap())
+    .collect();
+
+    Ok(authors)
 }
 
 pub async fn get_author_from_db(id: Uuid) {

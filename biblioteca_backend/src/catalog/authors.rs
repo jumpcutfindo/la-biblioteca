@@ -1,6 +1,8 @@
-use crate::AppState;
+use std::collections::HashMap;
 
-use axum::{Json, http::StatusCode, extract::Path, Router, routing::{get, post, put, delete}};
+use crate::{AppState, error::Error, catalog::db::get_all_authors_from_db};
+
+use axum::{Json, http::StatusCode, extract::{Path, Query, State}, Router, routing::{get, post, put, delete}};
 use uuid::Uuid;
 
 use super::model::{Author, CreateAuthorRequest, UpdateAuthorRequest};
@@ -8,10 +10,33 @@ use super::model::{Author, CreateAuthorRequest, UpdateAuthorRequest};
 pub fn authors_router() -> Router<AppState> {
     Router::new()
         .route("/authors/:id", get(get_author))
+        .route("/authors", get(get_authors))
         .route("/authors", post(create_author))
 }
+async fn get_author(Path(id): Path<String>) {
 
-async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode, Json<Author>) {
+}
+
+async fn get_authors(
+    state: State<AppState>,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<Author>>, Error> {
+    tracing::debug!("GET /authors with query params: {:?}", params);
+
+    match get_all_authors_from_db(state).await {
+        Ok(authors) => {
+            return Ok(Json(authors))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
+    }
+}
+
+async fn create_author(
+    Json(payload): Json<CreateAuthorRequest>
+) -> (StatusCode, Json<Author>) {
     let author = Author {
         id: Uuid::new_v4(),
         name: payload.name,
@@ -21,14 +46,6 @@ async fn create_author(Json(payload): Json<CreateAuthorRequest>) -> (StatusCode,
     };
 
     (StatusCode::CREATED, Json(author))
-}
-
-async fn get_author(Path(id): Path<String>) {
-
-}
-
-async fn get_authors() {
-
 }
 
 async fn delete_author(Path(id): Path<String>) {
