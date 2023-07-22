@@ -1,10 +1,10 @@
 use axum::extract::State;
-use rusqlite::{ Connection, Result };
+use rusqlite::{ Connection, Result, Statement };
 use uuid::Uuid;
 
 use crate::AppState;
 
-use super::model::{Book, Author};
+use super::{model::{Book, Author}, error::CatalogError};
 
 pub async fn get_all_books_from_db(
     State(state): State<AppState>,
@@ -46,13 +46,34 @@ pub async fn get_book_from_db(
 pub async fn add_book_to_db(
     State(state): State<AppState>,
     book: Book,
-) -> Result<Book> {
-    state.db_pool.get().unwrap().execute(
-        "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
-        (&book.id, &book.name, &book.description),
-    )?;
+    author_id: Uuid,
+) -> Result<Book, CatalogError> {
+    let conn = state.db_pool.get().unwrap();
+    
+    let author_exists = conn.query_row(
+        "SELECT EXISTS (SELECT 1 FROM authors WHERE id = ?1)", 
+        [author_id],
+        |row| {
+            let val: i32 = row.get(0)?;
+            Ok(val)
+        }
+    );
 
-    Ok(book)
+    if author_exists.unwrap() == 0 {
+        return Err(CatalogError::AuthorNotFound)
+    }
+
+    // Add the book itself
+    match conn.execute(
+            "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
+            (&book.id, &book.name, &book.description),
+        ) {
+        Ok(_it) => return Ok(book),
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(CatalogError::DatabaseError(err))
+        },
+    };
 }
 
 pub async fn delete_book_from_db(

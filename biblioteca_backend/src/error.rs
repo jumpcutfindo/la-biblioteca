@@ -30,8 +30,11 @@ impl Error {
         return Error::NotFound(NotFound {  })
     }
 
-    pub fn bad_request() -> Self {
-        return Error::BadRequest(BadRequest {  })
+    pub fn bad_request(message: String) -> Self {
+        return Error::BadRequest(BadRequest {
+            message: message,
+          }
+        )
     }
 
     pub fn server_issue() -> Self {
@@ -51,9 +54,9 @@ impl IntoResponse for Error {
 }
 
 #[derive(thiserror::Error, Debug)]
-#[error("Bad request!")]
+#[error("Bad request: {message}")]
 pub struct BadRequest {
-
+    message: String,
 }
 
 #[derive(thiserror::Error, Debug)]
