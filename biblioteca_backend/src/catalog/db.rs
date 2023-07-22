@@ -64,16 +64,12 @@ pub async fn add_book_to_db(
     }
 
     // Add the book itself
-    match conn.execute(
-            "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
-            (&book.id, &book.name, &book.description),
-        ) {
-        Ok(_it) => return Ok(book),
-        Err(err) => {
-            tracing::warn!("{}", err);
-            return Err(CatalogError::DatabaseError(err))
-        },
-    };
+    conn.execute(
+        "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
+        (&book.id, &book.name, &book.description),
+    )?;
+
+    Ok(book)
 }
 
 pub async fn delete_book_from_db(
