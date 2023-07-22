@@ -43,7 +43,8 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
         .execute(
             "CREATE TABLE IF NOT EXISTS book_authors (
                 book_id     BLOB PRIMARY KEY,
-                author_id   BLOB NOT NULL
+                author_id   BLOB NOT NULL,
+                FOREIGN KEY(author_id) REFERENCES authors(id)
             )", 
             ()
         )?;
