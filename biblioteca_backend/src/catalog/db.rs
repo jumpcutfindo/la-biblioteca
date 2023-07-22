@@ -94,8 +94,13 @@ pub async fn delete_book_from_db(
 pub async fn update_book_in_db(
     State(state): State<AppState>,
     book: Book,
-) -> Result<()> {
-    state.db_pool.get().unwrap().execute(
+    author_id: Uuid,
+) -> Result<(), CatalogError> {
+    let mut conn = state.db_pool.get().unwrap();
+    let tx = conn.transaction()?;
+
+    // Update entry
+    tx.execute(
         "UPDATE books
         SET name = $1,
             description = $2
@@ -104,6 +109,25 @@ pub async fn update_book_in_db(
         ",
         (book.name, book.description, book.id),
     )?;
+
+    // Update association
+    match tx.execute(
+        "UPDATE book_authors
+        SET author_id = $1
+        WHERE book_id = $2",
+        (author_id, book.id) 
+    ) {
+        Ok(_it) => {},
+        Err(err) => {
+            match err.sqlite_error_code().unwrap() {
+                rusqlite::ErrorCode::ConstraintViolation => 
+                    return Err(CatalogError::AuthorNotFound),
+                _ => return Err(CatalogError::DatabaseError(err))
+            }
+        }
+    };
+
+    tx.commit()?;
 
     Ok(())
 }

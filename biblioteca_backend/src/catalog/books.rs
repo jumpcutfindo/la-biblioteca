@@ -124,13 +124,19 @@ async fn update_book(
         description: payload.description,
     };
 
-    match update_book_in_db(state, book).await {
+    match update_book_in_db(state, book, payload.author_id).await {
         Ok(()) => {
             return Ok(StatusCode::NO_CONTENT)
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+
+            match err {
+                CatalogError::AuthorNotFound => 
+                    return Err(Error::bad_request(err.to_string())),
+                CatalogError::DatabaseError(_) => 
+                    return Err(Error::server_issue()),
+            }
         }
     }
 }
