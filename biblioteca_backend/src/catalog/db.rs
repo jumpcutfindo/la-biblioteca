@@ -48,26 +48,33 @@ pub async fn add_book_to_db(
     book: Book,
     author_id: Uuid,
 ) -> Result<Book, CatalogError> {
-    let conn = state.db_pool.get().unwrap();
-    
-    let author_exists = conn.query_row(
-        "SELECT EXISTS (SELECT 1 FROM authors WHERE id = ?1)", 
-        [author_id],
-        |row| {
-            let val: i32 = row.get(0)?;
-            Ok(val)
-        }
-    );
+    let mut conn = state.db_pool.get().unwrap();
 
-    if author_exists.unwrap() == 0 {
-        return Err(CatalogError::AuthorNotFound)
-    }
+    // Use transaction to ensure both statements complete
+    let tx = conn.transaction()?;
 
     // Add the book itself
-    conn.execute(
+    tx.execute(
         "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
         (&book.id, &book.name, &book.description),
     )?;
+
+    // Add link between author and book
+    match tx.execute(
+        "INSERT INTO book_authors (book_id, author_id) VALUES (?1, ?2)",
+        (&book.id, author_id),
+    ) {
+        Ok(_it) => {},
+        Err(err) => {
+            match err.sqlite_error_code().unwrap() {
+                rusqlite::ErrorCode::ConstraintViolation => 
+                    return Err(CatalogError::AuthorNotFound),
+                _ => return Err(CatalogError::DatabaseError(err))
+            }
+        }
+    };
+
+    tx.commit()?;
 
     Ok(book)
 }
