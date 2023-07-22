@@ -44,7 +44,12 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             "CREATE TABLE IF NOT EXISTS book_authors (
                 book_id     BLOB PRIMARY KEY,
                 author_id   BLOB NOT NULL,
-                FOREIGN KEY(author_id) REFERENCES authors(id)
+                CONSTRAINT fk_books
+                    FOREIGN KEY(book_id) REFERENCES books(id)
+                    ON DELETE CASCADE
+                CONSTRAINT fk_authors
+                    FOREIGN KEY(author_id) REFERENCES authors(id)
+                    ON DELETE CASCADE
             )", 
             ()
         )?;
