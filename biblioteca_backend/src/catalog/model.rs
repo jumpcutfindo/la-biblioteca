@@ -30,12 +30,16 @@ pub struct BookCategory {
 pub struct CreateBookRequest {
     pub name: String,
     pub description: String,
+
+    pub author_id: Uuid,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateBookRequest {
     pub name: String,
     pub description: String,
+
+    pub author_id: Uuid,
 }
 
 #[derive(Debug, Serialize)]
