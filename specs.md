@@ -10,10 +10,36 @@ The following are the expected set of APIs to be used:
 
 ## Catalog management
 
-| API                 | Functionality                                  |
-| ------------------- | ---------------------------------------------- |
-| `GET /books`        | Retrieves all the books present in the catalog |
-| `GET /books/:id`    | Retrieves the full details of a specified book |
-| `POST /books`       | Adds a book to the catalog                     |
-| `PUT /books/:id`    | Updates an existing book in the catalog        |
-| `DELETE /books/:id` | Deletes a specified book from the catalog      |
+### Book management
+
+| API                      | Functionality                                  |
+| ------------------------ | ---------------------------------------------- |
+| `GET /books`             | Retrieves all the books present in the catalog |
+| `GET /books/:id`         | Retrieves the full details of a specified book |
+| `POST /books`            | Adds a book to the catalog                     |
+| `PUT /books/:id`         | Updates an existing book in the catalog        |
+| `DELETE /books/:id`      | Deletes a specified book from the catalog      |
+| `POST /books/:id/borrow` | Borrows a specified book from the catalog      |
+| `POST /books/:id/return` | Returns a specified book from the catalog      |
+
+### Author management
+
+| API                      | Functionality                                    |
+| ------------------------ | ------------------------------------------------ |
+| `GET /authors`           | Retrieves all the authors present in the catalog |
+| `GET /authors/:id`       | Retrieves the full details of an author          |
+| `GET /authors/:id/books` | Retrieves the books written by that author       |
+| `POST /authors`          | Adds an author to the catalog                    |
+| `PUT /authors/:id`       | Updates the author's information in the catalog  |
+| `DELETE /authors/:id`    | Deletes a specified author from the catalog      |
+
+## User management
+
+TODO: Implement roles and authentication processes
+
+| API             | Functionality                         |
+| --------------- | ------------------------------------- |
+| `GET /users`    | Retrieves all users in the system     |
+| `GET /user/:id` | Retrieves specific user in the system |
+| `POST /users`   | Adds a user to the system             |
+| `DELETE /users` | Removes a user from the system        |
