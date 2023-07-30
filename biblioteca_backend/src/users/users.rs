@@ -1,9 +1,9 @@
 use axum::{Router, routing::{get, delete, post}, extract::{State, Path}, Json};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, users::db::get_user_from_db};
+use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db}};
 
-use super::model::User;
+use super::model::{User, CreateUserRequest};
 
 pub fn users_router() -> Router<AppState> {
     Router::new()
@@ -39,8 +39,28 @@ async fn get_user_roles() {
 
 }
 
-async fn add_user() {
+async fn add_user(
+    state: State<AppState>,
+    Json(payload): Json<CreateUserRequest>,
+) -> Result<Json<User>, Error> {
+    tracing::debug!("POST /users with params: {:?}", payload);
+    let user = User {
+        id: Uuid::new_v4(),
+        username: payload.username,
+    };
 
+    let user_role_id = payload.user_role_id;
+
+    match add_user_to_db(state, user, user_role_id).await {
+        Ok(user) => {
+            return Ok(Json(user))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+
+            return Err(Error::server_issue());
+        }
+    }
 }
 
 async fn delete_user() {
