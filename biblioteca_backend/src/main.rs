@@ -1,12 +1,13 @@
 mod catalog;
 mod database;
+mod users;
 mod error;
 
 use std::net::SocketAddr;
 
 use axum::{
     Router,
-    routing::get, extract::State,
+    routing::get,
 };
 
 use catalog::{ 
