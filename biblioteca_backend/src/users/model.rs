@@ -14,3 +14,11 @@ pub struct UserRole {
     pub name: String,
     pub num_borrowable_books: i32,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub user_role_id: Uuid,
+}
+
+
