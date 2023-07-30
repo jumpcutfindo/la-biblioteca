@@ -54,6 +54,18 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             ()
         )?;
 
+    tracing::debug!("Creating table 'users'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS users (
+                id              BLOB NOT NULL,
+                username        TEXT NOT NULL,
+                PRIMARY KEY(id, username)
+            )", 
+            ()
+        )?;
+        
     tracing::debug!("Database setup complete! :)");
     Ok(pool)
 }
