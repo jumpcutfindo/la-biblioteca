@@ -15,6 +15,8 @@ use catalog::{
     authors::authors_router,
 };
 
+use users::users::users_router;
+
 use database::setup_db;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
@@ -42,6 +44,7 @@ async fn main() {
     let app = Router::new()
         .merge(books_router())
         .merge(authors_router())
+        .merge(users_router())
         .route("/", get(root))
         .with_state(state);
 
