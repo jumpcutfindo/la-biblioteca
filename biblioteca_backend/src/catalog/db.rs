@@ -61,7 +61,7 @@ pub async fn add_book_to_db(
 
     // Add link between author and book
     match tx.execute(
-        "INSERT INTO book_authors (book_id, author_id) VALUES (?1, ?2)",
+        "INSERT INTO map_books_to_authors (book_id, author_id) VALUES (?1, ?2)",
         (&book.id, author_id),
     ) {
         Ok(_it) => {},
@@ -112,7 +112,7 @@ pub async fn update_book_in_db(
 
     // Update association
     match tx.execute(
-        "UPDATE book_authors
+        "UPDATE map_books_to_authors
         SET author_id = $1
         WHERE book_id = $2",
         (author_id, book.id) 

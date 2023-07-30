@@ -37,11 +37,11 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             ()
         )?;
 
-    tracing::debug!("Creating table 'book_authors'...");
+    tracing::debug!("Creating table 'map_books_to_authors'...");
     pool.get()
         .unwrap()
         .execute(
-            "CREATE TABLE IF NOT EXISTS book_authors (
+            "CREATE TABLE IF NOT EXISTS map_books_to_authors (
                 book_id     BLOB PRIMARY KEY,
                 author_id   BLOB NOT NULL,
                 CONSTRAINT fk_books
@@ -87,7 +87,7 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             )", 
             ()
         )?;
-        
+
     tracing::debug!("Creating table 'map_users_to_user_roles'...");
     pool.get()
         .unwrap()
