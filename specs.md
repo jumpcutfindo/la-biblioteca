@@ -37,9 +37,10 @@ The following are the expected set of APIs to be used:
 
 TODO: Implement roles and authentication processes
 
-| API             | Functionality                         |
-| --------------- | ------------------------------------- |
-| `GET /users`    | Retrieves all users in the system     |
-| `GET /user/:id` | Retrieves specific user in the system |
-| `POST /users`   | Adds a user to the system             |
-| `DELETE /users` | Removes a user from the system        |
+| API                | Functionality                          |
+| ------------------ | -------------------------------------- |
+| `GET /users`       | Retrieves all users in the system      |
+| `GET /users/roles` | Retrieves all user roles in the system |
+| `GET /user/:id`    | Retrieves specific user in the system  |
+| `POST /users`      | Adds a user to the system              |
+| `DELETE /users`    | Removes a user from the system         |
