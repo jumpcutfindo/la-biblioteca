@@ -81,9 +81,8 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
         .unwrap()
         .execute(
             "CREATE TABLE IF NOT EXISTS users (
-                id              BLOB NOT NULL,
-                username        TEXT NOT NULL,
-                PRIMARY KEY(id, username)
+                id              BLOB PRIMARY KEY,
+                username        TEXT UNIQUE NOT NULL
             )", 
             ()
         )?;
