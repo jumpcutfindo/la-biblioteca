@@ -6,8 +6,24 @@ use crate::AppState;
 
 use super::model::User;
 
-pub async fn get_all_users_from_db() {
+pub async fn list_users_from_db(
+    State(state): State<AppState>,
+) -> Result<Vec<User>> {
+    let conn = state.db_pool.get().unwrap();
 
+    let mut stmt = conn.prepare("SELECT * FROM users")?;
+
+    let users = stmt
+        .query_map([], |row| {
+            Ok(User {
+                id: row.get(0)?,
+                username: row.get(1)?,
+            })
+        })?
+        .map(|user| user.unwrap())
+        .collect();
+
+    Ok(users)
 }
 
 pub async fn get_user_from_db(

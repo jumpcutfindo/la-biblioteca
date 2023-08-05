@@ -1,7 +1,9 @@
-use axum::{Router, routing::{get, delete, post}, extract::{State, Path}, Json};
+use std::collections::HashMap;
+
+use axum::{Router, routing::{get, delete, post}, extract::{State, Path, Query}, Json};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db}};
+use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db}};
 
 use super::model::{User, CreateUserRequest};
 
@@ -31,8 +33,21 @@ async fn get_user(
     }
 }
 
-async fn list_users() {
+async fn list_users(
+    state: State<AppState>,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<User>>, Error> {
+    tracing::debug!("GET /users with query params: {:?}", params);
 
+    match list_users_from_db(state).await {
+        Ok(users) => {
+            return Ok(Json(users))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
+    }
 }
 
 async fn get_user_roles() {
