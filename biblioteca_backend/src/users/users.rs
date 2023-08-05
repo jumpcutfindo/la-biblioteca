@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use axum::{Router, routing::{get, delete, post}, extract::{State, Path, Query}, Json};
+use axum::{Router, routing::{get, delete, post}, extract::{State, Path, Query}, Json, http::StatusCode};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db}};
+use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db, delete_user_from_db}};
 
 use super::model::{User, CreateUserRequest, UserRole};
 
@@ -90,6 +90,19 @@ async fn add_user(
     }
 }
 
-async fn delete_user() {
-    
+async fn delete_user(
+    state: State<AppState>,
+    Path(id): Path<String>,
+) -> Result<StatusCode, Error> {
+    tracing::debug!("DELETE /users with id: {:?}", id);
+
+    match delete_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
+        Ok(()) => {
+            return Ok(StatusCode::NO_CONTENT)
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
+    }
 }

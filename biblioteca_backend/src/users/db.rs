@@ -92,6 +92,14 @@ pub async fn add_user_to_db(
     Ok(user)
 }
 
-pub async fn delete_user_from_db() {
-    
+pub async fn delete_user_from_db(
+    State(state): State<AppState>,
+    id: Uuid,
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
+        "DELETE FROM users WHERE id = $1", 
+        [id],
+    )?;
+
+    Ok(())
 }
