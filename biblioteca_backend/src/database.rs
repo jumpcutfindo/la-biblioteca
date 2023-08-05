@@ -37,16 +37,16 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             ()
         )?;
 
-    tracing::debug!("Creating table 'book_authors'...");
+    tracing::debug!("Creating table 'map_books_to_authors'...");
     pool.get()
         .unwrap()
         .execute(
-            "CREATE TABLE IF NOT EXISTS book_authors (
+            "CREATE TABLE IF NOT EXISTS map_books_to_authors (
                 book_id     BLOB PRIMARY KEY,
                 author_id   BLOB NOT NULL,
                 CONSTRAINT fk_books
                     FOREIGN KEY(book_id) REFERENCES books(id)
-                    ON DELETE CASCADE
+                    ON DELETE CASCADE,
                 CONSTRAINT fk_authors
                     FOREIGN KEY(author_id) REFERENCES authors(id)
                     ON DELETE CASCADE
@@ -54,6 +54,55 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             ()
         )?;
 
+    tracing::debug!("Creating table 'user_roles'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS user_roles (
+                id                      BLOB PRIMARY KEY,
+                role_name               TEXT NOT NULL,
+                num_borrowable_books    INT NOT NULL
+            )",
+            ()
+        )?;
+
+    tracing::debug!("Inserting some default roles into 'user_roles'...");
+    let binding = pool.get().unwrap();
+    let mut user_role_stmt = binding.prepare(
+        "INSERT OR IGNORE INTO user_roles (id, role_name, num_borrowable_books) VALUES (?1, ?2, ?3)"
+    )?;
+
+    user_role_stmt.execute((Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(), String::from("admin"), 0))?;
+    user_role_stmt.execute((Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(), String::from("adult_user"), 8))?;
+    user_role_stmt.execute((Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(), String::from("child_user"), 4))?;
+
+    tracing::debug!("Creating table 'users'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS users (
+                id              BLOB PRIMARY KEY,
+                username        TEXT UNIQUE NOT NULL
+            )", 
+            ()
+        )?;
+
+    tracing::debug!("Creating table 'map_users_to_user_roles'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS map_users_to_user_roles (
+                user_id             BLOB NOT NULL,
+                user_role_id        BLOB NOT NULL,
+                CONSTRAINT fk_users
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_user_roles
+                    FOREIGN KEY(user_role_id) REFERENCES user_roles(id)
+            )",
+        ()
+        )?;
+        
     tracing::debug!("Database setup complete! :)");
     Ok(pool)
 }

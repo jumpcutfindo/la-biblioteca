@@ -1,18 +1,21 @@
 mod catalog;
 mod database;
+mod users;
 mod error;
 
 use std::net::SocketAddr;
 
 use axum::{
     Router,
-    routing::get, extract::State,
+    routing::get,
 };
 
 use catalog::{ 
     books::books_router,
     authors::authors_router,
 };
+
+use users::users::users_router;
 
 use database::setup_db;
 use r2d2::Pool;
@@ -41,6 +44,7 @@ async fn main() {
     let app = Router::new()
         .merge(books_router())
         .merge(authors_router())
+        .merge(users_router())
         .route("/", get(root))
         .with_state(state);
 

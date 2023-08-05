@@ -2,7 +2,7 @@ use crate::AppState;
 use crate::catalog::error::CatalogError;
 
 use super::model::{Book, CreateBookRequest, UpdateBookRequest};
-use super::db::{ get_all_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
+use super::db::{ list_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
 use super::super::error::Error;
 
 use axum::extract::State;
@@ -23,7 +23,7 @@ pub fn books_router() -> Router<AppState> {
         .route("/books/:id", get(get_book))
         .route("/books/:id", delete(delete_book))
         .route("/books/:id", put(update_book))
-        .route("/books", get(get_books))
+        .route("/books", get(list_books))
         .route("/books", post(create_book))
 }
 
@@ -46,13 +46,13 @@ async fn get_book(
 }
 
 // Retrieves all books
-async fn get_books(
+async fn list_books(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Book>>, Error> {
     tracing::debug!("GET /books with query params: {:?}", params);
 
-    match get_all_books_from_db(state).await {
+    match list_books_from_db(state).await {
         Ok(books) => {
             return Ok(Json(books))
         },
