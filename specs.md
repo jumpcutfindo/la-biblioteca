@@ -4,6 +4,11 @@ La Biblioteca (also known as "the library" in Spanish) is a simple fullstack app
 
 It will contain a React frontend, Rust backend and use MongoDB for it's data storage.
 
+## Considerations
+
+For the sake of simplicity, we will omit important features that are typically important for the functioning of such a system:
+- User and request authentication
+
 # APIs
 
 The following are the expected set of APIs to be used:
@@ -34,8 +39,6 @@ The following are the expected set of APIs to be used:
 | `DELETE /authors/:id`    | Deletes a specified author from the catalog      |
 
 ## User management
-
-TODO: Implement roles and authentication processes
 
 | API                | Functionality                          |
 | ------------------ | -------------------------------------- |
