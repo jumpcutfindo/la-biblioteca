@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::AppState;
 
-use super::model::User;
+use super::model::{User, UserRole};
 
 pub async fn list_users_from_db(
     State(state): State<AppState>,
@@ -24,6 +24,27 @@ pub async fn list_users_from_db(
         .collect();
 
     Ok(users)
+}
+
+pub async fn list_user_roles_from_db(
+    State(state): State<AppState>,
+) -> Result<Vec<UserRole>> {
+    let conn = state.db_pool.get().unwrap();
+
+    let mut stmt = conn.prepare("SELECT * FROM user_roles")?;
+
+    let user_roles = stmt
+        .query_map([], |row| {
+            Ok(UserRole {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                num_borrowable_books: row.get(2)?,
+            })
+        })?
+        .map(|user| user.unwrap())
+        .collect();
+
+    Ok(user_roles)
 }
 
 pub async fn get_user_from_db(

@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use axum::{Router, routing::{get, delete, post}, extract::{State, Path, Query}, Json};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db}};
+use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db}};
 
-use super::model::{User, CreateUserRequest};
+use super::model::{User, CreateUserRequest, UserRole};
 
 pub fn users_router() -> Router<AppState> {
     Router::new()
@@ -13,7 +13,7 @@ pub fn users_router() -> Router<AppState> {
         .route("/users/:id", delete(delete_user))
         .route("/users", get(list_users))
         .route("/users", post(add_user))
-        .route("/users/roles", get(get_user_roles))
+        .route("/users/roles", get(list_user_roles))
 }
 
 async fn get_user(
@@ -50,8 +50,20 @@ async fn list_users(
     }
 }
 
-async fn get_user_roles() {
+async fn list_user_roles(
+    state: State<AppState>,
+) -> Result<Json<Vec<UserRole>>, Error> {
+    tracing::debug!("GET /users/roles");
 
+    match list_user_roles_from_db(state).await {
+        Ok(user_roles) => {
+            return Ok(Json(user_roles))
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue())
+        }
+    }
 }
 
 async fn add_user(
