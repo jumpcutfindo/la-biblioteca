@@ -6,7 +6,7 @@ use crate::AppState;
 
 use super::{model::{Book, Author}, error::CatalogError};
 
-pub async fn get_all_books_from_db(
+pub async fn list_books_from_db(
     State(state): State<AppState>,
 ) -> Result<Vec<Book>> {
     let conn = state.db_pool.get().unwrap();
@@ -132,7 +132,7 @@ pub async fn update_book_in_db(
     Ok(())
 }
 
-pub async fn get_all_authors_from_db(
+pub async fn list_authors_from_db(
     State(state): State<AppState>,
 ) -> Result<Vec<Author>> {
     let conn = state.db_pool.get().unwrap();

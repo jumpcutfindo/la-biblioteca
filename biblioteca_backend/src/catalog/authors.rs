@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
-use crate::{AppState, error::Error, catalog::db::{get_all_authors_from_db, get_author_from_db, delete_author_from_db, update_author_in_db}};
+use crate::{AppState, error::Error, catalog::db::{list_authors_from_db, get_author_from_db, delete_author_from_db, update_author_in_db}};
 
 use axum::{Json, http::StatusCode, extract::{Path, Query, State}, Router, routing::{get, post, put, delete}};
 use uuid::{uuid, Uuid};
@@ -12,7 +12,7 @@ pub fn authors_router() -> Router<AppState> {
         .route("/authors/:id", get(get_author))
         .route("/authors/:id", delete(delete_author))
         .route("/authors/:id", put(update_author))
-        .route("/authors", get(get_authors))
+        .route("/authors", get(list_authors))
         .route("/authors", post(create_author))
 }
 async fn get_author(
@@ -32,13 +32,13 @@ async fn get_author(
     }
 }
 
-async fn get_authors(
+async fn list_authors(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Author>>, Error> {
     tracing::debug!("GET /authors with query params: {:?}", params);
 
-    match get_all_authors_from_db(state).await {
+    match list_authors_from_db(state).await {
         Ok(authors) => {
             return Ok(Json(authors))
         },
