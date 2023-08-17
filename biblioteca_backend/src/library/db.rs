@@ -1,5 +1,20 @@
-pub async fn add_borrow_entry_to_db() {
+use axum::extract::State;
+use rusqlite::Result;
+use uuid::Uuid;
 
+use crate::AppState;
+
+pub async fn add_borrow_entry_to_db(
+    State(state): State<AppState>,
+    user_id: Uuid,
+    book_id: Uuid,
+) -> Result<()> {
+    state.db_pool.get().unwrap().execute(
+        "INSERT INTO map_users_to_borrowed_books (user_id, book_id) VALUES (?1, ?2)",
+        (user_id, book_id),
+    )?;
+
+    Ok(())
 }
 
 pub async fn add_return_entry_to_db() {
