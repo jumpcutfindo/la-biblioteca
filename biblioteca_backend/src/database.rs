@@ -20,7 +20,8 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
 }
 
 fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
-    tracing::debug!("Creating table 'books'...");
+    tracing::debug!("Creating 'catalog' related tables...");
+    tracing::debug!("> Creating table 'books'...");
     
     pool.get()
         .unwrap()
@@ -34,7 +35,7 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
         )
         .unwrap();
 
-    tracing::debug!("Creating table 'authors'...");
+    tracing::debug!("> Creating table 'authors'...");
     pool.get()
         .unwrap()
         .execute(
@@ -49,7 +50,7 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
         )
         .unwrap();
 
-    tracing::debug!("Creating table 'map_books_to_authors'...");
+    tracing::debug!("> Creating table 'map_books_to_authors'...");
     pool.get()
         .unwrap()
         .execute(
@@ -69,7 +70,8 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
 }
 
 fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
-    tracing::debug!("Creating table 'user_roles'...");
+    tracing::debug!("Creating 'user' related tables...");
+    tracing::debug!("> Creating table 'user_roles'...");
     pool.get()
         .unwrap()
         .execute(
@@ -82,7 +84,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
         )
         .unwrap();
 
-    tracing::debug!("Inserting some default roles into 'user_roles'...");
+    tracing::debug!("> Inserting some default roles into 'user_roles'...");
     let binding = pool.get().unwrap();
     let mut user_role_stmt = binding.prepare(
         "INSERT OR IGNORE INTO user_roles (id, role_name, num_borrowable_books) VALUES (?1, ?2, ?3)"
@@ -93,7 +95,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
     user_role_stmt.execute((Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(), String::from("adult_user"), 8)).unwrap();
     user_role_stmt.execute((Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(), String::from("child_user"), 4)).unwrap();
 
-    tracing::debug!("Creating table 'users'...");
+    tracing::debug!("> Creating table 'users'...");
     pool.get()
         .unwrap()
         .execute(
@@ -105,7 +107,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
         )
         .unwrap();
 
-    tracing::debug!("Creating table 'map_users_to_user_roles'...");
+    tracing::debug!("> Creating table 'map_users_to_user_roles'...");
     pool.get()
         .unwrap()
         .execute(
@@ -124,7 +126,8 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
 }
 
 fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
-    tracing::debug!("Creating table 'map_users_to_borrowed_books'...");
+    tracing::debug!("Creating 'library' related tables...");
+    tracing::debug!("> Creating table 'map_users_to_borrowed_books'...");
     pool.get()
         .unwrap()
         .execute(
