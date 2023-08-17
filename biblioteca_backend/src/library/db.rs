@@ -30,17 +30,27 @@ pub async fn add_borrow_entry_to_db(
                     BookBorrowState::Returned => {},
                 }
             },
-            Err(_) => {
+            Err(err) => {
                 // If entry doesn't exist, we continue
+                match err {
+                    rusqlite::Error::QueryReturnedNoRows => {},
+                    _ => return Err(LibraryError::DatabaseError(err))
+                }
             }
         }
 
-    conn.execute(
+    match conn.execute(
         "INSERT INTO map_users_to_borrowed_books (user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4)",
         (user_id, book_id, Utc::now(), BookBorrowState::Borrowed),
-    ).unwrap();
-
-    Ok(())
+    ) {
+        Ok(_) => return Ok(()),
+        Err(err) => {
+            match err.sqlite_error_code().unwrap() {
+                rusqlite::ErrorCode::ConstraintViolation => return Err(LibraryError::ResourceNotExists),
+                _ => return Err(LibraryError::DatabaseError(err)),
+            }
+        },
+    };
 }
 
 pub async fn add_return_entry_to_db() {

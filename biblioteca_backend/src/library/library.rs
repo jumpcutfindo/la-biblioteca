@@ -1,7 +1,7 @@
 use axum::{Router, routing::{delete, post}, extract::{Path, State}, http::StatusCode, Json};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, library::db::add_borrow_entry_to_db};
+use crate::{AppState, error::Error, library::{db::add_borrow_entry_to_db, error::LibraryError}};
 
 use super::model::BorrowBookRequest;
 
@@ -26,7 +26,7 @@ pub async fn borrow_book(
             tracing::warn!("{}", err);
 
             match err {
-                crate::library::error::LibraryError::BookBorrowed => 
+                LibraryError::BookBorrowed | LibraryError::ResourceNotExists => 
                     return Err(Error::bad_request(String::from(err.to_string()))),
                 _ => return Err(Error::server_issue()),
             }
