@@ -57,6 +57,7 @@ pub async fn add_return_entry_to_db(
 ) -> Result<(), LibraryError> {
     let conn = state.db_pool.get().unwrap();
 
+    let mut borrower_id = Uuid::nil();
     let mut entry_id = Uuid::nil();
 
     // Check if the book is currently returned
@@ -82,6 +83,11 @@ pub async fn add_return_entry_to_db(
         },
     }
 
+    //  Check whether the borrower is the same user
+    if user_id != borrower_id {
+        return Err(LibraryError::BookNotBorrowedByUser)
+    }
+
     match conn.execute(
         "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
         (entry_id, user_id, book_id, Utc::now(), BookBorrowState::Returned),
@@ -103,7 +109,7 @@ pub fn get_latest_book_entry_from_db(
     let conn = state.db_pool.get().unwrap();
 
     match conn.query_row(
-        "SELECT * FROM map_users_to_borrowed_books WHERE book_id = ?1 ORDER BY timestamp",
+        "SELECT * FROM map_users_to_borrowed_books WHERE book_id = ?1 ORDER BY timestamp DESC",
         [book_id], 
         |row| {
             Ok(BookBorrowEntry {

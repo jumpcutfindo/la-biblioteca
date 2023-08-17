@@ -6,6 +6,7 @@ pub enum LibraryError {
     ResourceNotExists,
     BookAlreadyBorrowed,
     BookAlreadyReturned,
+    BookNotBorrowedByUser,
 }
 
 impl fmt::Display for LibraryError {
@@ -19,6 +20,8 @@ impl fmt::Display for LibraryError {
                 write!(f, "book has already been borrowed"),
             LibraryError::BookAlreadyReturned =>
                 write!(f, "book has already been returned"),
+            LibraryError::BookNotBorrowedByUser =>
+                write!(f, "book was not borrowed by given user"),
         }
     }
 }
