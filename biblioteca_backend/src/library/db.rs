@@ -53,8 +53,28 @@ pub async fn add_borrow_entry_to_db(
     };
 }
 
-pub async fn add_return_entry_to_db() {
+pub async fn add_return_entry_to_db(
+    State(state): State<AppState>,
+    user_id: Uuid,
+    book_id: Uuid,
+) -> Result<(), LibraryError> {
+    let conn = state.db_pool.get().unwrap();
 
+    // TODO: Check whether the book is borrowed
+    // TODO: Check whether the borrower is the same user
+
+    match conn.execute(
+        "INSERT INTO map_users_to_borrowed_books (user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4)",
+        (user_id, book_id, Utc::now(), BookBorrowState::Returned),
+    ) {
+        Ok(_) => return Ok(()),
+        Err(err) => {
+            match err.sqlite_error_code().unwrap() {
+                rusqlite::ErrorCode::ConstraintViolation => return Err(LibraryError::ResourceNotExists),
+                _ => return Err(LibraryError::DatabaseError(err)),
+            }
+        },
+    };
 }
 
 pub async fn get_latest_book_state_from_db() {
