@@ -1,5 +1,6 @@
 use std::{str::FromStr, convert::Infallible};
 
+use chrono::{DateTime, Utc};
 use rusqlite::{ToSql, types::{FromSql, FromSqlResult, FromSqlError, ValueRef}};
 use serde::Deserialize;
 use uuid::Uuid;
@@ -40,6 +41,14 @@ impl FromSql for BookBorrowState {
         value.as_str()?.parse()
             .map_err(|e| FromSqlError::Other(Box::new(e)))
     }
+}
+
+pub struct BookBorrowEntry {
+    pub id: Uuid,
+    pub book_id: Uuid,
+    pub user_id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub action: BookBorrowState,
 }
 
 #[derive(Debug, Deserialize)]
