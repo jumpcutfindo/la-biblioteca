@@ -4,38 +4,38 @@ use rusqlite::{ToSql, types::{FromSql, FromSqlResult, FromSqlError, ValueRef}};
 use serde::Deserialize;
 use uuid::Uuid;
 
-pub enum BookState {
+pub enum BookBorrowState {
     Borrowed, Returned
 }
 
-impl BookState {
+impl BookBorrowState {
     fn to_string(&self) -> String {
         match *self {
-            BookState::Borrowed => String::from("Borrowed"),
-            BookState::Returned => String::from("Returned"),
+            BookBorrowState::Borrowed => String::from("Borrowed"),
+            BookBorrowState::Returned => String::from("Returned"),
         }
     }
 }
 
-impl FromStr for BookState {
+impl FromStr for BookBorrowState {
     type Err = Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let "Borrowed" = s {
-            Ok(BookState::Borrowed)
+            Ok(BookBorrowState::Borrowed)
         } else {
-            Ok(BookState::Returned)
+            Ok(BookBorrowState::Returned)
         }
     }
 }
 
-impl ToSql for BookState {
+impl ToSql for BookBorrowState {
     fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
         Ok(self.to_string().into())
     }
 }
 
-impl FromSql for BookState {
+impl FromSql for BookBorrowState {
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str()?.parse()
             .map_err(|e| FromSqlError::Other(Box::new(e)))
