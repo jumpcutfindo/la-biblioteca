@@ -11,48 +11,7 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
     let manager = SqliteConnectionManager::file("library.db");
     let pool = r2d2::Pool::new(manager).unwrap();
 
-    tracing::debug!("Creating table 'books'...");
-    pool.get()
-        .unwrap()
-        .execute(
-            "CREATE TABLE IF NOT EXISTS books (
-                id              BLOB PRIMARY KEY,
-                name            TEXT NOT NULL,
-                description     TEXT NOT NULL
-            )", 
-            (),
-        )?;
-
-    tracing::debug!("Creating table 'authors'...");
-    pool.get()
-        .unwrap()
-        .execute(
-            "CREATE TABLE IF NOT EXISTS authors (
-                id              BLOB PRIMARY KEY,
-                name            TEXT NOT NULL,
-                description     TEXT,
-                country         TEXT NOT NULL,
-                language        TEXT NOT NULL
-            )",
-            ()
-        )?;
-
-    tracing::debug!("Creating table 'map_books_to_authors'...");
-    pool.get()
-        .unwrap()
-        .execute(
-            "CREATE TABLE IF NOT EXISTS map_books_to_authors (
-                book_id     BLOB PRIMARY KEY,
-                author_id   BLOB NOT NULL,
-                CONSTRAINT fk_books
-                    FOREIGN KEY(book_id) REFERENCES books(id)
-                    ON DELETE CASCADE,
-                CONSTRAINT fk_authors
-                    FOREIGN KEY(author_id) REFERENCES authors(id)
-                    ON DELETE CASCADE
-            )", 
-            ()
-        )?;
+    setup_catalog_tables(&pool);
 
     tracing::debug!("Creating table 'user_roles'...");
     pool.get()
@@ -122,6 +81,55 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
         
     tracing::debug!("Database setup complete! :)");
     Ok(pool)
+}
+
+pub fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
+    tracing::debug!("Creating table 'books'...");
+    
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS books (
+                id              BLOB PRIMARY KEY,
+                name            TEXT NOT NULL,
+                description     TEXT NOT NULL
+            )", 
+            (),
+        )
+        .unwrap();
+
+    tracing::debug!("Creating table 'authors'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS authors (
+                id              BLOB PRIMARY KEY,
+                name            TEXT NOT NULL,
+                description     TEXT,
+                country         TEXT NOT NULL,
+                language        TEXT NOT NULL
+            )",
+            ()
+        )
+        .unwrap();
+
+    tracing::debug!("Creating table 'map_books_to_authors'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS map_books_to_authors (
+                book_id     BLOB PRIMARY KEY,
+                author_id   BLOB NOT NULL,
+                CONSTRAINT fk_books
+                    FOREIGN KEY(book_id) REFERENCES books(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_authors
+                    FOREIGN KEY(author_id) REFERENCES authors(id)
+                    ON DELETE CASCADE
+            )", 
+            ()
+        )
+        .unwrap();
 }
 
 pub fn insert_mock_data() -> Result<()> {
