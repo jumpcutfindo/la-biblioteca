@@ -24,7 +24,12 @@ pub async fn borrow_book(
         },
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+
+            match err {
+                crate::library::error::LibraryError::BookBorrowed => 
+                    return Err(Error::bad_request(String::from(err.to_string()))),
+                _ => return Err(Error::server_issue()),
+            }
         }
     }
 }
