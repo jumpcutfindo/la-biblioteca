@@ -19,7 +19,7 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
     Ok(pool)
 }
 
-pub fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
+fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
     tracing::debug!("Creating table 'books'...");
     
     pool.get()
@@ -68,7 +68,7 @@ pub fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
         .unwrap();
 }
 
-pub fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
+fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
     tracing::debug!("Creating table 'user_roles'...");
     pool.get()
         .unwrap()
@@ -123,7 +123,7 @@ pub fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
         .unwrap();
 }
 
-pub fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
+fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
     tracing::debug!("Creating table 'map_users_to_borrowed_books'...");
     pool.get()
         .unwrap()
