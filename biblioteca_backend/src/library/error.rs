@@ -5,6 +5,7 @@ pub enum LibraryError {
     DatabaseError(#[from] rusqlite::Error),
     ResourceNotExists,
     BookAlreadyBorrowed,
+    BookAlreadyReturned,
 }
 
 impl fmt::Display for LibraryError {
@@ -15,7 +16,9 @@ impl fmt::Display for LibraryError {
             LibraryError::ResourceNotExists =>
                 write!(f, "either user or book does not exist"),
             LibraryError::BookAlreadyBorrowed =>
-                write!(f, "book has been borrowed"),
+                write!(f, "book has already been borrowed"),
+            LibraryError::BookAlreadyReturned =>
+                write!(f, "book has already been returned"),
         }
     }
 }
