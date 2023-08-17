@@ -57,12 +57,34 @@ pub async fn add_return_entry_to_db(
 ) -> Result<(), LibraryError> {
     let conn = state.db_pool.get().unwrap();
 
-    // TODO: Check whether the book is borrowed
-    // TODO: Check whether the borrower is the same user
+    let mut entry_id = Uuid::nil();
+
+    // Check if the book is currently returned
+    match get_latest_book_entry_from_db(State(state), book_id) {
+        Ok(entry) => {
+            let latest_entry = entry.action;
+
+            // If entry exists, check if it's "Returned"
+            match latest_entry {
+                BookBorrowState::Borrowed => {},
+                BookBorrowState::Returned => return Err(LibraryError::BookAlreadyReturned),
+            }
+
+            borrower_id = entry.user_id;
+            entry_id = entry.id;
+        },
+        Err(err) => {
+            // If entry doesn't exist, we continue
+            match err {
+                rusqlite::Error::QueryReturnedNoRows => {},
+                _ => return Err(LibraryError::DatabaseError(err))
+            }
+        },
+    }
 
     match conn.execute(
-        "INSERT INTO map_users_to_borrowed_books (user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4)",
-        (user_id, book_id, Utc::now(), BookBorrowState::Returned),
+        "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
+        (entry_id, user_id, book_id, Utc::now(), BookBorrowState::Returned),
     ) {
         Ok(_) => return Ok(()),
         Err(err) => {
