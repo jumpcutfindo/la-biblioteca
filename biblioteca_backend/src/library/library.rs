@@ -26,7 +26,7 @@ pub async fn borrow_book(
             tracing::warn!("{}", err);
 
             match err {
-                LibraryError::BookBorrowed | LibraryError::ResourceNotExists => 
+                LibraryError::BookAlreadyBorrowed | LibraryError::ResourceNotExists => 
                     return Err(Error::bad_request(String::from(err.to_string()))),
                 _ => return Err(Error::server_issue()),
             }

@@ -4,7 +4,7 @@ use std::fmt;
 pub enum LibraryError {
     DatabaseError(#[from] rusqlite::Error),
     ResourceNotExists,
-    BookBorrowed,
+    BookAlreadyBorrowed,
 }
 
 impl fmt::Display for LibraryError {
@@ -14,7 +14,7 @@ impl fmt::Display for LibraryError {
                 write!(f, "there was an error in accessing the database"),
             LibraryError::ResourceNotExists =>
                 write!(f, "either user or book does not exist"),
-            LibraryError::BookBorrowed =>
+            LibraryError::BookAlreadyBorrowed =>
                 write!(f, "book has been borrowed"),
         }
     }

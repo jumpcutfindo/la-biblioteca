@@ -23,7 +23,7 @@ pub async fn add_borrow_entry_to_db(
 
             // If entry exists, check if it's "Borrowed"
             match latest_entry {
-                BookBorrowState::Borrowed => return Err(LibraryError::BookBorrowed),
+                BookBorrowState::Borrowed => return Err(LibraryError::BookAlreadyBorrowed),
                 BookBorrowState::Returned => {},
             }
         },
