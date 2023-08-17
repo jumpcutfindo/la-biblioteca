@@ -132,8 +132,10 @@ fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
         .unwrap()
         .execute(
             "CREATE TABLE IF NOT EXISTS map_users_to_borrowed_books (
-                user_id     BLOB NOT NULL,
-                book_id     BLOB NOT NULL,
+                user_id         BLOB NOT NULL,
+                book_id         BLOB NOT NULL,
+                timestamp       DATE NOT NULL,
+                action          TEXT NOT NULL,
                 CONSTRAINT fk_users
                     FOREIGN KEY (user_id) REFERENCES users(id)
                     ON DELETE CASCADE,
