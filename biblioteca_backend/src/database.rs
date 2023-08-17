@@ -102,6 +102,23 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
             )",
         ()
         )?;
+
+    tracing::debug!("Creating table 'map_users_to_borrowed_books'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS map_users_to_borrowed_books (
+                user_id     BLOB NOT NULL,
+                book_id     BLOB NOT NULL,
+                CONSTRAINT fk_users
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_books
+                    FOREIGN KEY (book_id) REFERENCES books(id)
+                    ON DELETE CASCADE
+            )", 
+            ()
+        )?;
         
     tracing::debug!("Database setup complete! :)");
     Ok(pool)
