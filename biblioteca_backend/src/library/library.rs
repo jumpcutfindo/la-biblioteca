@@ -43,6 +43,8 @@ async fn return_book(
     Path(book_id): Path<String>,
     Json(payload): Json<BorrowBookRequest>,
 ) -> Result<StatusCode, Error> {
+    tracing::debug!("POST /books/:id/return for user_id {:?} and book_id {:?}", payload.user_id, book_id);
+    
     match add_return_entry_to_db(state, payload.user_id, Uuid::parse_str(&book_id).unwrap()).await {
         Ok(()) => {
             return Ok(StatusCode::ACCEPTED)
