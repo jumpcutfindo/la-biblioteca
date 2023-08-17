@@ -3,12 +3,12 @@ use uuid::Uuid;
 
 use crate::{AppState, error::Error, library::{db::add_borrow_entry_to_db, error::LibraryError}};
 
-use super::model::BorrowBookRequest;
+use super::{model::BorrowBookRequest, db::add_return_entry_to_db};
 
 pub fn library_router() -> Router<AppState> {
     Router::new()
         .route("/books/:id/borrow", post(borrow_book))
-        .route("/books/:id/return", delete(return_book))
+        .route("/books/:id/return", post(return_book))
 }
 
 pub async fn borrow_book(
@@ -38,8 +38,25 @@ async fn can_borrow_book() {
 
 }
 
-async fn return_book() {
+async fn return_book(
+    state: State<AppState>,
+    Path(book_id): Path<String>,
+    Json(payload): Json<BorrowBookRequest>,
+) -> Result<StatusCode, Error> {
+    match add_return_entry_to_db(state, payload.user_id, Uuid::parse_str(&book_id).unwrap()).await {
+        Ok(()) => {
+            return Ok(StatusCode::ACCEPTED)
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
 
+            match err {
+                LibraryError::ResourceNotExists => 
+                    return Err(Error::bad_request(String::from(err.to_string()))),
+                _ => return Err(Error::server_issue()),
+            }
+        }
+    }
 }
 
 async fn can_return_book() {
