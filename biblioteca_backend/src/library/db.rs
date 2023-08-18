@@ -38,6 +38,13 @@ pub async fn add_borrow_entry_to_db(
         },
     }
 
+    // Check if the user can still borrow books
+    let num_borrowed = get_num_borrowed_from_db(state.db_pool.get().unwrap(), user_id)?;
+    let num_max_borrowable = get_num_user_can_borrow_from_db(state.db_pool.get().unwrap(), user_id)?;
+    if num_borrowed > num_max_borrowable  {
+        return Err(LibraryError::NumBorrowableExceeded(num_max_borrowable))
+    }
+
     match conn.execute(
         "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
         (Uuid::new_v4(), user_id, book_id, Utc::now(), BookBorrowState::Borrowed),
@@ -108,8 +115,6 @@ pub fn get_latest_book_entry_from_db(
     conn: PooledConnection<SqliteConnectionManager>,
     book_id: Uuid,
 ) -> Result<BookBorrowEntry, rusqlite::Error> {
-    let conn = state.db_pool.get().unwrap();
-
     match conn.query_row(
         "SELECT * FROM map_users_to_borrowed_books WHERE book_id = ?1 ORDER BY timestamp DESC",
         [book_id], 
@@ -131,8 +136,6 @@ pub fn get_num_borrowed_from_db(
     conn: PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
-    let conn = state.db_pool.get().unwrap();
-
     conn.query_row::<u32, _, _>(
         "SELECT COUNT(*) FROM map_users_to_borrowed_books a
                 WHERE a.action = 'Borrowed'
@@ -147,8 +150,6 @@ pub fn get_num_user_can_borrow_from_db(
     conn: PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
-    let conn = state.db_pool.get().unwrap();
-
     conn.query_row::<u32, _, _>(
         "SELECT c.num_borrowable_books from users a 
                 LEFT JOIN map_users_to_user_roles b ON a.id = b.user_id 
