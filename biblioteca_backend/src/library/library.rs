@@ -1,4 +1,4 @@
-use axum::{Router, routing::post, extract::{Path, State}, http::StatusCode, Json};
+use axum::{extract::{Path, State}, http::StatusCode, Json};
 use uuid::Uuid;
 
 use crate::{error::Error, library::{db::add_borrow_entry_to_db, error::LibraryError}};

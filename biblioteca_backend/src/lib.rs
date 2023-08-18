@@ -1,6 +1,6 @@
-mod app;
-mod catalog;
-mod database;
-mod users;
-mod library;
-mod error;
+pub mod app;
+pub mod catalog;
+pub mod database;
+pub mod users;
+pub mod library;
+pub mod error;

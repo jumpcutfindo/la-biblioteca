@@ -11,8 +11,6 @@ use uuid::Uuid;
 use std::{collections::HashMap, str::FromStr};
 
 use axum::{
-    Router,
-    routing::{get, delete, put, post},
     extract::{Path, Query},
     http::StatusCode,
     Json,
