@@ -52,7 +52,7 @@ async fn list_books(
 ) -> Result<Json<Vec<Book>>, Error> {
     tracing::debug!("GET /books with query params: {:?}", params);
 
-    match list_books_from_db(state).await {
+    match list_books_from_db(state, params).await {
         Ok(books) => {
             return Ok(Json(books))
         },

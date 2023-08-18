@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::extract::State;
 use rusqlite::{ Connection, Result, Statement };
 use uuid::Uuid;
@@ -8,10 +10,17 @@ use super::{model::{Book, Author}, error::CatalogError};
 
 pub async fn list_books_from_db(
     State(state): State<AppState>,
+    params: HashMap<String, String>,
 ) -> Result<Vec<Book>> {
     let conn = state.db_pool.get().unwrap();
 
-    let mut stmt = conn.prepare("SELECT * FROM books")?;
+    let mut stmt_string = String::from("SELECT * FROM books WHERE 1=1");
+
+    if params.contains_key("name") {
+        stmt_string.push_str(&format!(" AND name LIKE '%{}%'", params.get("name").unwrap()));
+    }
+
+    let mut stmt = conn.prepare(&stmt_string)?;
 
     let books = stmt
     .query_map([], |row| {
