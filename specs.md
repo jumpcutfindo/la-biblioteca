@@ -7,6 +7,7 @@ It will contain a React frontend, Rust backend and use MongoDB for it's data sto
 ## Considerations
 
 For the sake of simplicity, we will omit important features that are typically important for the functioning of such a system:
+
 - User and request authentication
 
 # APIs
@@ -17,15 +18,13 @@ The following are the expected set of APIs to be used:
 
 ### Book management
 
-| API                      | Functionality                                  |
-| ------------------------ | ---------------------------------------------- |
-| `GET /books`             | Retrieves all the books present in the catalog |
-| `GET /books/:id`         | Retrieves the full details of a specified book |
-| `POST /books`            | Adds a book to the catalog                     |
-| `PUT /books/:id`         | Updates an existing book in the catalog        |
-| `DELETE /books/:id`      | Deletes a specified book from the catalog      |
-| `POST /books/:id/borrow` | Borrows a specified book from the catalog      |
-| `POST /books/:id/return` | Returns a specified book from the catalog      |
+| API                 | Functionality                                  |
+| ------------------- | ---------------------------------------------- |
+| `GET /books`        | Retrieves all the books present in the catalog |
+| `GET /books/:id`    | Retrieves the full details of a specified book |
+| `POST /books`       | Adds a book to the catalog                     |
+| `PUT /books/:id`    | Updates an existing book in the catalog        |
+| `DELETE /books/:id` | Deletes a specified book from the catalog      |
 
 ### Author management
 
@@ -47,3 +46,10 @@ The following are the expected set of APIs to be used:
 | `GET /user/:id`    | Retrieves specific user in the system  |
 | `POST /users`      | Adds a user to the system              |
 | `DELETE /users`    | Removes a user from the system         |
+
+## Library management
+
+| API                      | Functionality                             |
+| ------------------------ | ----------------------------------------- |
+| `POST /books/:id/borrow` | Borrows a specified book from the catalog |
+| `POST /books/:id/return` | Returns a specified book from the catalog |

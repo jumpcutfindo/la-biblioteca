@@ -29,7 +29,8 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
             "CREATE TABLE IF NOT EXISTS books (
                 id              BLOB PRIMARY KEY,
                 name            TEXT NOT NULL,
-                description     TEXT NOT NULL
+                description     TEXT NOT NULL,
+                language        TEXT NOT NULL
             )", 
             (),
         )
@@ -43,8 +44,7 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
                 id              BLOB PRIMARY KEY,
                 name            TEXT NOT NULL,
                 description     TEXT,
-                country         TEXT NOT NULL,
-                language        TEXT NOT NULL
+                country         TEXT NOT NULL
             )",
             ()
         )

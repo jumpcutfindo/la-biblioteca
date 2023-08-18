@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr};
 use crate::{AppState, error::Error, catalog::db::{list_authors_from_db, get_author_from_db, delete_author_from_db, update_author_in_db}};
 
 use axum::{Json, http::StatusCode, extract::{Path, Query, State}, Router, routing::{get, post, put, delete}};
-use uuid::{uuid, Uuid};
+use uuid::Uuid;
 
 use super::{model::{Author, CreateAuthorRequest, UpdateAuthorRequest}, db::add_author_to_db};
 
@@ -38,7 +38,7 @@ async fn list_authors(
 ) -> Result<Json<Vec<Author>>, Error> {
     tracing::debug!("GET /authors with query params: {:?}", params);
 
-    match list_authors_from_db(state).await {
+    match list_authors_from_db(state, params).await {
         Ok(authors) => {
             return Ok(Json(authors))
         },

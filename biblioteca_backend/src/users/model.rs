@@ -20,4 +20,11 @@ pub struct CreateUserRequest {
     pub user_role_id: Uuid,
 }
 
+#[derive(Debug, Serialize)]
+pub struct FullUser {
+    pub id: Uuid,
+    pub username: String,
+    pub user_role: UserRole,
+}
+
 
