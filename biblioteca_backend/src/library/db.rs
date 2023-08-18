@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use axum::extract::State;
 use r2d2::PooledConnection;
 use r2d2_sqlite::SqliteConnectionManager;

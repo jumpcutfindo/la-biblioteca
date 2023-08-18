@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use axum::extract::State;
-use rusqlite::{ Connection, Result, Statement };
+use rusqlite::Result;
 use uuid::Uuid;
 
 use crate::AppState;
