@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db, delete_user_from_db}};
 
-use super::model::{User, CreateUserRequest, UserRole};
+use super::model::{User, CreateUserRequest, UserRole, FullUser};
 
 pub fn users_router() -> Router<AppState> {
     Router::new()
@@ -19,7 +19,7 @@ pub fn users_router() -> Router<AppState> {
 async fn get_user(
     state: State<AppState>,
     Path(id): Path<String>,
-) -> Result<Json<User>, Error> {
+) -> Result<Json<FullUser>, Error> {
     tracing::debug!("GET /users with id: {:?}", id);
 
     match get_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
@@ -36,7 +36,7 @@ async fn get_user(
 async fn list_users(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
-) -> Result<Json<Vec<User>>, Error> {
+) -> Result<Json<Vec<FullUser>>, Error> {
     tracing::debug!("GET /users with query params: {:?}", params);
 
     match list_users_from_db(state).await {

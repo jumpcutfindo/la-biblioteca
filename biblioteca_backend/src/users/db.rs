@@ -4,20 +4,29 @@ use uuid::Uuid;
 
 use crate::AppState;
 
-use super::model::{User, UserRole};
+use super::model::{User, UserRole, FullUser};
 
 pub async fn list_users_from_db(
     State(state): State<AppState>,
-) -> Result<Vec<User>> {
+) -> Result<Vec<FullUser>> {
     let conn = state.db_pool.get().unwrap();
 
-    let mut stmt = conn.prepare("SELECT * FROM users")?;
+    let mut stmt = conn.prepare("
+        SELECT a.id as user_id, a.username, c.id as user_role_id, c.role_name, c.num_borrowable_books 
+        FROM users a, map_users_to_user_roles b, user_roles c 
+        WHERE a.id = b.user_id AND b.user_role_id = c.id"
+    )?;
 
     let users = stmt
         .query_map([], |row| {
-            Ok(User {
+            Ok(FullUser {
                 id: row.get(0)?,
                 username: row.get(1)?,
+                user_role: UserRole {
+                    id: row.get(2)?,
+                    name: row.get(3)?,
+                    num_borrowable_books: row.get(4)?, 
+                }
             })
         })?
         .map(|user| user.unwrap())
@@ -50,14 +59,22 @@ pub async fn list_user_roles_from_db(
 pub async fn get_user_from_db(
     State(state): State<AppState>,
     id: Uuid
-) -> Result<User> {
+) -> Result<FullUser> {
     state.db_pool.get().unwrap().query_row(
-        "SELECT * FROM users WHERE id = $1", 
+        "SELECT a.id as user_id, a.username, c.id as user_role_id, c.role_name, c.num_borrowable_books 
+        FROM users a, map_users_to_user_roles b, user_roles c 
+        WHERE a.id = b.user_id AND b.user_role_id = c.id
+        AND a.id = $1", 
         [id], 
     |row| {
-        Ok(User {
+        Ok(FullUser {
             id: row.get(0)?,
             username: row.get(1)?,
+            user_role: UserRole {
+                id: row.get(2)?,
+                name: row.get(3)?,
+                num_borrowable_books: row.get(4)?, 
+            }
         })
     })
 }
