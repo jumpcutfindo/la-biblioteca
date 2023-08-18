@@ -147,10 +147,21 @@ pub async fn update_book_in_db(
 
 pub async fn list_authors_from_db(
     State(state): State<AppState>,
+    params: HashMap<String, String>
 ) -> Result<Vec<Author>> {
     let conn = state.db_pool.get().unwrap();
 
-    let mut stmt = conn.prepare("SELECT * FROM authors")?;
+    let mut stmt_string = String::from("SELECT * FROM books WHERE 1=1");
+
+    if params.contains_key("name") {
+        stmt_string.push_str(&format!(" AND name LIKE %{}%", params.get("name").unwrap()));
+    }
+
+    if params.contains_key("country") {
+        stmt_string.push_str(&format!(" AND country LIKE %{}%", params.get("country").unwrap()));
+    }
+
+    let mut stmt = conn.prepare(&stmt_string)?;
 
     let authors = stmt
     .query_map([], |row| {

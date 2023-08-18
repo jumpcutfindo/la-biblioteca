@@ -38,7 +38,7 @@ async fn list_authors(
 ) -> Result<Json<Vec<Author>>, Error> {
     tracing::debug!("GET /authors with query params: {:?}", params);
 
-    match list_authors_from_db(state).await {
+    match list_authors_from_db(state, params).await {
         Ok(authors) => {
             return Ok(Json(authors))
         },
