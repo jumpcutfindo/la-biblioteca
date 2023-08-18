@@ -19,7 +19,7 @@ pub async fn add_borrow_entry_to_db(
     let conn = state.db_pool.get().unwrap();
 
     // Check if the book is currently borrowed
-    match get_latest_book_entry_from_db(state.db_pool.get().unwrap(), book_id) {
+    match get_latest_book_entry_from_db(&conn, book_id) {
         Ok(entry) => {
             let latest_entry = entry.action;
 
@@ -39,9 +39,9 @@ pub async fn add_borrow_entry_to_db(
     }
 
     // Check if the user can still borrow books
-    let num_borrowed = get_num_borrowed_from_db(state.db_pool.get().unwrap(), user_id)?;
-    let num_max_borrowable = get_num_user_can_borrow_from_db(state.db_pool.get().unwrap(), user_id)?;
-    if num_borrowed > num_max_borrowable  {
+    let num_borrowed = get_num_borrowed_from_db(&conn, user_id)?;
+    let num_max_borrowable = get_num_user_can_borrow_from_db(&conn, user_id)?;
+    if num_borrowed >= num_max_borrowable  {
         return Err(LibraryError::NumBorrowableExceeded(num_max_borrowable))
     }
 
@@ -70,7 +70,7 @@ pub async fn add_return_entry_to_db(
     let mut entry_id = Uuid::nil();
 
     // Check if the book is currently returned
-    match get_latest_book_entry_from_db(state.db_pool.get().unwrap(), book_id) {
+    match get_latest_book_entry_from_db(&conn, book_id) {
         Ok(entry) => {
             let latest_entry = entry.action;
 
@@ -112,7 +112,7 @@ pub async fn add_return_entry_to_db(
 }
 
 pub fn get_latest_book_entry_from_db(
-    conn: PooledConnection<SqliteConnectionManager>,
+    conn: &PooledConnection<SqliteConnectionManager>,
     book_id: Uuid,
 ) -> Result<BookBorrowEntry, rusqlite::Error> {
     match conn.query_row(
@@ -133,7 +133,7 @@ pub fn get_latest_book_entry_from_db(
 }
 
 pub fn get_num_borrowed_from_db(
-    conn: PooledConnection<SqliteConnectionManager>,
+    conn: &PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
     conn.query_row::<u32, _, _>(
@@ -146,14 +146,17 @@ pub fn get_num_borrowed_from_db(
     )
 }
 
+
+
 pub fn get_num_user_can_borrow_from_db(
-    conn: PooledConnection<SqliteConnectionManager>,
+    conn: &PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
     conn.query_row::<u32, _, _>(
-        "SELECT c.num_borrowable_books from users a 
+        "SELECT c.num_borrowable_books FROM users a
                 LEFT JOIN map_users_to_user_roles b ON a.id = b.user_id 
-                LEFT JOIN user_roles c ON b.user_role_id = c.id;", 
+                LEFT JOIN user_roles c ON b.user_role_id = c.id
+                WHERE a.id = $1", 
             [user_id], 
             |row| row.get(0)
     )
