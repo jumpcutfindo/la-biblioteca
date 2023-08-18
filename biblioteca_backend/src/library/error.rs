@@ -7,6 +7,7 @@ pub enum LibraryError {
     BookAlreadyBorrowed,
     BookAlreadyReturned,
     BookNotBorrowedByUser,
+    NumBorrowableExceeded(u32),
 }
 
 impl fmt::Display for LibraryError {
@@ -22,6 +23,8 @@ impl fmt::Display for LibraryError {
                 write!(f, "book has already been returned"),
             LibraryError::BookNotBorrowedByUser =>
                 write!(f, "book was not borrowed by given user"),
+            LibraryError::NumBorrowableExceeded(max) =>
+                write!(f, "user has reached max num of borrowable books (max: {})", max),
         }
     }
 }
