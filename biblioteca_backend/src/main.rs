@@ -1,6 +1,7 @@
 mod catalog;
 mod database;
 mod users;
+mod library;
 mod error;
 
 use std::net::SocketAddr;
@@ -20,6 +21,8 @@ use users::users::users_router;
 use database::setup_db;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
+
+use crate::library::library::library_router;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -45,6 +48,7 @@ async fn main() {
         .merge(books_router())
         .merge(authors_router())
         .merge(users_router())
+        .merge(library_router())
         .route("/", get(root))
         .with_state(state);
 

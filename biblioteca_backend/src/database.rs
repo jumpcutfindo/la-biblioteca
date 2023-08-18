@@ -11,7 +11,18 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
     let manager = SqliteConnectionManager::file("library.db");
     let pool = r2d2::Pool::new(manager).unwrap();
 
-    tracing::debug!("Creating table 'books'...");
+    setup_catalog_tables(&pool);
+    setup_user_tables(&pool);
+    setup_library_tables(&pool);
+        
+    tracing::debug!("Database setup complete! :)");
+    Ok(pool)
+}
+
+fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
+    tracing::debug!("Creating 'catalog' related tables...");
+    tracing::debug!("> Creating table 'books'...");
+    
     pool.get()
         .unwrap()
         .execute(
@@ -21,9 +32,10 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                 description     TEXT NOT NULL
             )", 
             (),
-        )?;
+        )
+        .unwrap();
 
-    tracing::debug!("Creating table 'authors'...");
+    tracing::debug!("> Creating table 'authors'...");
     pool.get()
         .unwrap()
         .execute(
@@ -35,9 +47,10 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                 language        TEXT NOT NULL
             )",
             ()
-        )?;
+        )
+        .unwrap();
 
-    tracing::debug!("Creating table 'map_books_to_authors'...");
+    tracing::debug!("> Creating table 'map_books_to_authors'...");
     pool.get()
         .unwrap()
         .execute(
@@ -52,9 +65,13 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                     ON DELETE CASCADE
             )", 
             ()
-        )?;
+        )
+        .unwrap();
+}
 
-    tracing::debug!("Creating table 'user_roles'...");
+fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
+    tracing::debug!("Creating 'user' related tables...");
+    tracing::debug!("> Creating table 'user_roles'...");
     pool.get()
         .unwrap()
         .execute(
@@ -64,19 +81,21 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                 num_borrowable_books    INT NOT NULL
             )",
             ()
-        )?;
+        )
+        .unwrap();
 
-    tracing::debug!("Inserting some default roles into 'user_roles'...");
+    tracing::debug!("> Inserting some default roles into 'user_roles'...");
     let binding = pool.get().unwrap();
     let mut user_role_stmt = binding.prepare(
         "INSERT OR IGNORE INTO user_roles (id, role_name, num_borrowable_books) VALUES (?1, ?2, ?3)"
-    )?;
+    )
+    .unwrap();
 
-    user_role_stmt.execute((Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(), String::from("admin"), 0))?;
-    user_role_stmt.execute((Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(), String::from("adult_user"), 8))?;
-    user_role_stmt.execute((Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(), String::from("child_user"), 4))?;
+    user_role_stmt.execute((Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(), String::from("admin"), 0)).unwrap();
+    user_role_stmt.execute((Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(), String::from("adult_user"), 8)).unwrap();
+    user_role_stmt.execute((Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(), String::from("child_user"), 4)).unwrap();
 
-    tracing::debug!("Creating table 'users'...");
+    tracing::debug!("> Creating table 'users'...");
     pool.get()
         .unwrap()
         .execute(
@@ -85,9 +104,10 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                 username        TEXT UNIQUE NOT NULL
             )", 
             ()
-        )?;
+        )
+        .unwrap();
 
-    tracing::debug!("Creating table 'map_users_to_user_roles'...");
+    tracing::debug!("> Creating table 'map_users_to_user_roles'...");
     pool.get()
         .unwrap()
         .execute(
@@ -101,10 +121,32 @@ pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
                     FOREIGN KEY(user_role_id) REFERENCES user_roles(id)
             )",
         ()
-        )?;
-        
-    tracing::debug!("Database setup complete! :)");
-    Ok(pool)
+        )
+        .unwrap();
+}
+
+fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
+    tracing::debug!("Creating 'library' related tables...");
+    tracing::debug!("> Creating table 'map_users_to_borrowed_books'...");
+    pool.get()
+        .unwrap()
+        .execute(
+            "CREATE TABLE IF NOT EXISTS map_users_to_borrowed_books (
+                id              BLOB NOT NULL,
+                user_id         BLOB NOT NULL,
+                book_id         BLOB NOT NULL,
+                timestamp       DATE NOT NULL,
+                action          TEXT NOT NULL,
+                CONSTRAINT fk_users
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_books
+                    FOREIGN KEY (book_id) REFERENCES books(id)
+                    ON DELETE CASCADE
+            )", 
+            ()
+        )
+        .unwrap();
 }
 
 pub fn insert_mock_data() -> Result<()> {
