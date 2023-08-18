@@ -5,7 +5,9 @@ use super::model::{Book, CreateBookRequest, UpdateBookRequest};
 use super::db::{ list_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
 use super::super::error::Error;
 
+use axum::Router;
 use axum::extract::State;
+use axum::routing::{get, delete, put, post};
 use uuid::Uuid;
 
 use std::{collections::HashMap, str::FromStr};
@@ -16,8 +18,17 @@ use axum::{
     Json,
 };
 
+pub fn books_router() -> Router<AppState> {
+    Router::new()
+        .route("/books/:id", get(get_book))
+        .route("/books/:id", delete(delete_book))
+        .route("/books/:id", put(update_book))
+        .route("/books", get(list_books))
+        .route("/books", post(create_book))
+}
+
 // Retrieves a specific book, by id
-pub async fn get_book(
+async fn get_book(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<Book>, Error> {
@@ -35,7 +46,7 @@ pub async fn get_book(
 }
 
 // Retrieves all books
-pub async fn list_books(
+async fn list_books(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Book>>, Error> {
@@ -53,7 +64,7 @@ pub async fn list_books(
 }
 
 // Creates a new book
-pub async fn create_book(
+async fn create_book(
     state: State<AppState>,
     Json(payload): Json<CreateBookRequest>,
 ) -> Result<Json<Book>, Error> {
@@ -82,7 +93,7 @@ pub async fn create_book(
 }
 
 // Deletes a specific book
-pub async fn delete_book(
+async fn delete_book(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<StatusCode, Error> {
@@ -100,7 +111,7 @@ pub async fn delete_book(
 }
 
 // Updates a specific book
-pub async fn update_book(
+async fn update_book(
     state: State<AppState>,
     Path(id): Path<String>,
     Json(payload): Json<UpdateBookRequest>,

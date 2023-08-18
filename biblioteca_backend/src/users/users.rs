@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use axum::{extract::{State, Path, Query}, Json, http::StatusCode};
+use axum::{extract::{State, Path, Query}, Json, http::StatusCode, routing::{get, delete, post}, Router};
 use uuid::Uuid;
 
 use crate::{error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db, delete_user_from_db}};
@@ -8,6 +8,14 @@ use crate::app::AppState;
 
 use super::model::{User, CreateUserRequest, UserRole, FullUser};
 
+pub fn users_router() -> Router<AppState> {
+    Router::new()
+        .route("/users/:id", get(get_user))
+        .route("/users/:id", delete(delete_user))
+        .route("/users", get(list_users))
+        .route("/users", post(add_user))
+        .route("/users/roles", get(list_user_roles))
+}
 
 pub async fn get_user(
     state: State<AppState>,
