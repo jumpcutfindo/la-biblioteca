@@ -20,6 +20,10 @@ pub async fn list_books_from_db(
         stmt_string.push_str(&format!(" AND name LIKE '%{}%'", params.get("name").unwrap()));
     }
 
+    if params.contains_key("language") {
+        stmt_string.push_str(&format!(" AND language LIKE '%{}%'", params.get("language").unwrap()));
+    }
+
     let mut stmt = conn.prepare(&stmt_string)?;
 
     let books = stmt
