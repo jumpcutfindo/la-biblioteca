@@ -1,4 +1,4 @@
-use crate::AppState;
+use crate::app::AppState;
 use crate::catalog::error::CatalogError;
 
 use super::model::{Book, CreateBookRequest, UpdateBookRequest};
@@ -18,17 +18,8 @@ use axum::{
     Json,
 };
 
-pub fn books_router() -> Router<AppState> {
-    Router::new()
-        .route("/books/:id", get(get_book))
-        .route("/books/:id", delete(delete_book))
-        .route("/books/:id", put(update_book))
-        .route("/books", get(list_books))
-        .route("/books", post(create_book))
-}
-
 // Retrieves a specific book, by id
-async fn get_book(
+pub async fn get_book(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<Book>, Error> {
@@ -46,7 +37,7 @@ async fn get_book(
 }
 
 // Retrieves all books
-async fn list_books(
+pub async fn list_books(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Book>>, Error> {
@@ -64,7 +55,7 @@ async fn list_books(
 }
 
 // Creates a new book
-async fn create_book(
+pub async fn create_book(
     state: State<AppState>,
     Json(payload): Json<CreateBookRequest>,
 ) -> Result<Json<Book>, Error> {
@@ -93,7 +84,7 @@ async fn create_book(
 }
 
 // Deletes a specific book
-async fn delete_book(
+pub async fn delete_book(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<StatusCode, Error> {
@@ -111,7 +102,7 @@ async fn delete_book(
 }
 
 // Updates a specific book
-async fn update_book(
+pub async fn update_book(
     state: State<AppState>,
     Path(id): Path<String>,
     Json(payload): Json<UpdateBookRequest>,

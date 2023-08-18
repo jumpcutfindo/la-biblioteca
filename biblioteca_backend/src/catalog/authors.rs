@@ -1,21 +1,15 @@
 use std::{collections::HashMap, str::FromStr};
 
-use crate::{AppState, error::Error, catalog::db::{list_authors_from_db, get_author_from_db, delete_author_from_db, update_author_in_db}};
+use crate::app::AppState;
+use crate::catalog::db::{list_authors_from_db, get_author_from_db, delete_author_from_db, update_author_in_db};
+use crate::error::Error;
 
-use axum::{Json, http::StatusCode, extract::{Path, Query, State}, Router, routing::{get, post, put, delete}};
+use axum::{Json, http::StatusCode, extract::{Path, Query, State}};
 use uuid::Uuid;
 
 use super::{model::{Author, CreateAuthorRequest, UpdateAuthorRequest}, db::add_author_to_db};
 
-pub fn authors_router() -> Router<AppState> {
-    Router::new()
-        .route("/authors/:id", get(get_author))
-        .route("/authors/:id", delete(delete_author))
-        .route("/authors/:id", put(update_author))
-        .route("/authors", get(list_authors))
-        .route("/authors", post(create_author))
-}
-async fn get_author(
+pub async fn get_author(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<Author>, Error> {
@@ -32,7 +26,7 @@ async fn get_author(
     }
 }
 
-async fn list_authors(
+pub async fn list_authors(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<Author>>, Error> {
@@ -49,7 +43,7 @@ async fn list_authors(
     }
 }
 
-async fn create_author(
+pub async fn create_author(
     state: State<AppState>,
     Json(payload): Json<CreateAuthorRequest>,
 ) -> Result<Json<Author>, Error> {
@@ -74,7 +68,7 @@ async fn create_author(
     }
 }
 
-async fn delete_author(
+pub async fn delete_author(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<StatusCode, Error> {
@@ -91,7 +85,7 @@ async fn delete_author(
     }
 }
 
-async fn update_author(
+pub async fn update_author(
     state: State<AppState>,
     Path(id): Path<String>,
     Json(payload): Json<UpdateAuthorRequest>,

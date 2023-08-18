@@ -5,7 +5,7 @@ use rusqlite::Result;
 use uuid::Uuid;
 use chrono::prelude::*;
 
-use crate::AppState;
+use crate::app::AppState;
 
 use super::{model::{BookBorrowState, BookBorrowEntry}, error::LibraryError};
 

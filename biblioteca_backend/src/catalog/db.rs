@@ -4,7 +4,7 @@ use axum::extract::State;
 use rusqlite::Result;
 use uuid::Uuid;
 
-use crate::AppState;
+use crate::app::AppState;
 
 use super::{model::{Book, Author}, error::CatalogError};
 

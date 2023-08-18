@@ -1,8 +1,8 @@
-use axum::{extract::State};
+use axum::extract::State;
 use rusqlite::{Result, Error};
 use uuid::Uuid;
 
-use crate::AppState;
+use crate::app::AppState;
 
 use super::model::{User, UserRole, FullUser};
 
