@@ -1,6 +1,8 @@
 use std::error::Error;
 
 use axum::extract::State;
+use r2d2::PooledConnection;
+use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::Result;
 use uuid::Uuid;
 use chrono::prelude::*;
@@ -17,7 +19,7 @@ pub async fn add_borrow_entry_to_db(
     let conn = state.db_pool.get().unwrap();
 
     // Check if the book is currently borrowed
-    match get_latest_book_entry_from_db(State(state), book_id) {
+    match get_latest_book_entry_from_db(state.db_pool.get().unwrap(), book_id) {
         Ok(entry) => {
             let latest_entry = entry.action;
 
@@ -61,7 +63,7 @@ pub async fn add_return_entry_to_db(
     let mut entry_id = Uuid::nil();
 
     // Check if the book is currently returned
-    match get_latest_book_entry_from_db(State(state), book_id) {
+    match get_latest_book_entry_from_db(state.db_pool.get().unwrap(), book_id) {
         Ok(entry) => {
             let latest_entry = entry.action;
 
@@ -103,7 +105,7 @@ pub async fn add_return_entry_to_db(
 }
 
 pub fn get_latest_book_entry_from_db(
-    State(state): State<AppState>,
+    conn: PooledConnection<SqliteConnectionManager>,
     book_id: Uuid,
 ) -> Result<BookBorrowEntry, rusqlite::Error> {
     let conn = state.db_pool.get().unwrap();
@@ -126,7 +128,7 @@ pub fn get_latest_book_entry_from_db(
 }
 
 pub fn get_num_borrowed_from_db(
-    State(state): State<AppState>,
+    conn: PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
     let conn = state.db_pool.get().unwrap();
@@ -142,7 +144,7 @@ pub fn get_num_borrowed_from_db(
 }
 
 pub fn get_num_user_can_borrow_from_db(
-    State(state): State<AppState>,
+    conn: PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
 ) -> Result<u32, rusqlite::Error> {
     let conn = state.db_pool.get().unwrap();
