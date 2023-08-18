@@ -140,3 +140,18 @@ pub fn get_num_borrowed_from_db(
             |row| row.get(0)
     )
 }
+
+pub fn get_num_user_can_borrow_from_db(
+    State(state): State<AppState>,
+    user_id: Uuid,
+) -> Result<u32, rusqlite::Error> {
+    let conn = state.db_pool.get().unwrap();
+
+    conn.query_row::<u32, _, _>(
+        "SELECT c.num_borrowable_books from users a 
+                LEFT JOIN map_users_to_user_roles b ON a.id = b.user_id 
+                LEFT JOIN user_roles c ON b.user_role_id = c.id;", 
+            [user_id], 
+            |row| row.get(0)
+    )
+}
