@@ -124,3 +124,19 @@ pub fn get_latest_book_entry_from_db(
             Err(err) => Err(err),
         }
 }
+
+pub fn get_num_borrowed_from_db(
+    State(state): State<AppState>,
+    user_id: Uuid,
+) -> Result<u32, rusqlite::Error> {
+    let conn = state.db_pool.get().unwrap();
+
+    conn.query_row::<u32, _, _>(
+        "SELECT COUNT(*) FROM map_users_to_borrowed_books a
+                WHERE a.action = 'Borrowed'
+                AND a.user_id = $1
+                AND a.id NOT IN (SELECT b.id FROM map_users_to_borrowed_books b WHERE b.action = 'Returned')", 
+            [user_id], 
+            |row| row.get(0)
+    )
+}
