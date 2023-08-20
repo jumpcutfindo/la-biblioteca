@@ -53,6 +53,7 @@ pub async fn borrow_book(
             }
         },
         Err(err) => {
+            tracing::warn!("{}", err);
             match err {
                 // No entry found, so it's OK
                 rusqlite::Error::QueryReturnedNoRows => {},
@@ -74,23 +75,59 @@ pub async fn borrow_book(
 
 pub async fn return_book(
     state: State<AppState>,
-    Path(book_id): Path<String>,
+    Path(book_id): Path<Uuid>,
     Json(payload): Json<BorrowBookRequest>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!("POST /books/:id/return for user_id {:?} and book_id {:?}", payload.user_id, book_id);
+
+    // Check existence of book_id
+    if !is_book_exists_in_db(&state, book_id).unwrap() {
+        return Err(Error::bad_request(LibraryError::BookNotExists.to_string()))
+    }
+
+    // Check existence of user_id
+    if !is_user_exists_in_db(&state, payload.user_id).unwrap() {
+        return Err(Error::bad_request(LibraryError::UserNotExists.to_string()))
+    }
+
+    let mut borrower_id = Uuid::nil();
+    let mut entry_id = Uuid::nil();
+
+    // Check if the book is currently returned
+    match get_latest_book_entry_from_db(&state, book_id) {
+        Ok(entry) => {
+            let latest_entry = entry.action;
+
+            // If entry exists, check if it's "Returned"
+            match latest_entry {
+                BookBorrowState::Borrowed => {},
+                BookBorrowState::Returned => return Err(Error::bad_request(LibraryError::BookAlreadyReturned.to_string())),
+            }
+
+            borrower_id = entry.user_id;
+            entry_id = entry.id;
+        },
+        Err(err) => {
+            tracing::warn!("{}", err);
+            match err {
+                rusqlite::Error::QueryReturnedNoRows => {},
+                _ => return Err(Error::server_issue())
+            }
+        },
+    }
+
+    //  Check whether the borrower is the same user
+    if payload.user_id != borrower_id {
+        return Err(Error::bad_request(LibraryError::BookNotBorrowedByUser.to_string()));
+    }
     
-    match add_return_entry_to_db(state, payload.user_id, Uuid::parse_str(&book_id).unwrap()).await {
+    match add_return_entry_to_db(state, entry_id, payload.user_id, book_id).await {
         Ok(()) => {
             return Ok(StatusCode::ACCEPTED)
         },
         Err(err) => {
             tracing::warn!("{}", err);
-
-            match err {
-                LibraryError::BookNotBorrowedByUser | LibraryError::BookAlreadyReturned | LibraryError::ResourceNotExists => 
-                    return Err(Error::bad_request(String::from(err.to_string()))),
-                _ => return Err(Error::server_issue()),
-            }
+            return Err(Error::server_issue());
         }
     }
 }
