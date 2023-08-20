@@ -113,7 +113,7 @@ pub async fn update_book_in_db(
         "UPDATE books
         SET name = $1,
             description = $2,
-            language = $3,
+            language = $3
         WHERE
             id = $4;
         ",
