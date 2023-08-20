@@ -1,6 +1,4 @@
 use axum::{extract::{Path, State}, http::StatusCode, Json, Router, routing::post};
-use r2d2::PooledConnection;
-use r2d2_sqlite::SqliteConnectionManager;
 use uuid::Uuid;
 
 use crate::{error::Error, library::{db::{add_borrow_entry_to_db, is_book_exists_in_db, is_user_exists_in_db, get_latest_book_entry_from_db, get_num_borrowed_from_db, get_num_user_can_borrow_from_db}, error::LibraryError, model::BookBorrowState}};

@@ -1,12 +1,11 @@
 use axum::extract::State;
-use r2d2::PooledConnection;
 use rusqlite::Result;
 use uuid::Uuid;
 use chrono::prelude::*;
 
 use crate::app::AppState;
 
-use super::{model::{BookBorrowState, BookBorrowEntry}, error::LibraryError};
+use super::model::{BookBorrowState, BookBorrowEntry};
 
 pub async fn add_borrow_entry_to_db(
     State(state): State<AppState>,

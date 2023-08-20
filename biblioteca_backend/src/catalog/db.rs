@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::app::AppState;
 
-use super::{model::{Book, Author}, error::CatalogError};
+use super::model::{Book, Author};
 
 pub async fn list_books_from_db(
     State(state): State<AppState>,

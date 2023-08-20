@@ -1,9 +1,7 @@
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{Connection, Result};
+use rusqlite::Result;
 use uuid::Uuid;
-
-use crate::catalog::model::Book;
 
 pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
     tracing::debug!("Setting up our in-memory, SQLite database...");
