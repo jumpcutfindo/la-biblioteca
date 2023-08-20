@@ -1,4 +1,5 @@
 use crate::app::AppState;
+use crate::catalog::db::is_author_exists_in_db;
 use crate::catalog::error::CatalogError;
 
 use super::model::{Book, CreateBookRequest, UpdateBookRequest};
@@ -75,19 +76,17 @@ async fn create_book(
         description: payload.description,
     };
 
+    if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
+        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()))
+    }
+
     match add_book_to_db(state, book, payload.author_id).await {
         Ok(book) => {
             return Ok(Json(book))
         },
         Err(err) => {
             tracing::warn!("{}", err);
-
-            match err {
-                CatalogError::AuthorNotFound => 
-                    return Err(Error::bad_request(err.to_string())),
-                CatalogError::DatabaseError(_) => 
-                    return Err(Error::server_issue()),
-            }
+            return Err(Error::server_issue());
         }
     }
 }

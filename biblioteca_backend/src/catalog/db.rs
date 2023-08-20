@@ -60,7 +60,7 @@ pub async fn add_book_to_db(
     State(state): State<AppState>,
     book: Book,
     author_id: Uuid,
-) -> Result<Book, CatalogError> {
+) -> Result<Book, rusqlite::Error> {
     let mut conn = state.db_pool.get().unwrap();
 
     // Use transaction to ensure both statements complete
@@ -78,13 +78,7 @@ pub async fn add_book_to_db(
         (&book.id, author_id),
     ) {
         Ok(_it) => {},
-        Err(err) => {
-            match err.sqlite_error_code().unwrap() {
-                rusqlite::ErrorCode::ConstraintViolation => 
-                    return Err(CatalogError::AuthorNotFound),
-                _ => return Err(CatalogError::DatabaseError(err))
-            }
-        }
+        Err(err) => return Err(err)
     };
 
     tx.commit()?;
