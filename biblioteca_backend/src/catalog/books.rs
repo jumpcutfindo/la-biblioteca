@@ -123,19 +123,17 @@ async fn update_book(
         description: payload.description,
     };
 
+    if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
+        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()))
+    }
+
     match update_book_in_db(state, book, payload.author_id).await {
         Ok(()) => {
             return Ok(StatusCode::NO_CONTENT)
         },
         Err(err) => {
             tracing::warn!("{}", err);
-
-            match err {
-                CatalogError::AuthorNotFound => 
-                    return Err(Error::bad_request(err.to_string())),
-                CatalogError::DatabaseError(_) => 
-                    return Err(Error::server_issue()),
-            }
+            return Err(Error::server_issue());
         }
     }
 }

@@ -102,7 +102,7 @@ pub async fn update_book_in_db(
     State(state): State<AppState>,
     book: Book,
     author_id: Uuid,
-) -> Result<(), CatalogError> {
+) -> Result<(), rusqlite::Error> {
     let mut conn = state.db_pool.get().unwrap();
     let tx = conn.transaction()?;
 
@@ -124,14 +124,8 @@ pub async fn update_book_in_db(
         WHERE book_id = $2",
         (author_id, book.id) 
     ) {
-        Ok(_it) => {},
-        Err(err) => {
-            match err.sqlite_error_code().unwrap() {
-                rusqlite::ErrorCode::ConstraintViolation => 
-                    return Err(CatalogError::AuthorNotFound),
-                _ => return Err(CatalogError::DatabaseError(err))
-            }
-        }
+        Ok(_) => {},
+        Err(err) => return Err(err),
     };
 
     tx.commit()?;
