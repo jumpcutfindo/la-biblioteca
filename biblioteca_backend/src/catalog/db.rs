@@ -239,3 +239,17 @@ pub async fn update_author_in_db(
 
     Ok(())
 }
+
+pub fn is_author_exists_in_db(
+    State(state): &State<AppState>,
+    author_id: Uuid,
+) -> Result<bool, rusqlite::Error> {
+    match state.db_pool.get().unwrap().query_row::<i32, _, _>(
+        "SELECT COUNT(*) FROM authors WHERE id = $1",
+        [author_id],
+        |row| Ok(row.get(0)?)
+    ) {
+        Ok(count) => return Ok(count > 0),
+        Err(err) => return Err(err),
+    }
+}
