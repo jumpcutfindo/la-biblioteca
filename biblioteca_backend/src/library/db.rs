@@ -144,8 +144,6 @@ pub fn get_num_borrowed_from_db(
     )
 }
 
-
-
 pub fn get_num_user_can_borrow_from_db(
     conn: &PooledConnection<SqliteConnectionManager>,
     user_id: Uuid,
@@ -158,4 +156,32 @@ pub fn get_num_user_can_borrow_from_db(
             [user_id], 
             |row| row.get(0)
     )
+}
+
+pub fn is_user_exists_in_db(
+    conn: &PooledConnection<SqliteConnectionManager>,
+    user_id: Uuid,
+) -> Result<bool, rusqlite::Error> {
+    match conn.query_row::<i32,_,_>(
+        "SELECT COUNT(*) FROM users WHERE id = $1",
+        [user_id],
+        |row| Ok(row.get(0)?)
+    ) {
+        Ok(count) => return Ok(count == 1),
+        Err(err) => return Err(err),
+    }
+}
+
+pub fn is_book_exists_in_db(
+    conn: &PooledConnection<SqliteConnectionManager>,
+    book_id: Uuid,
+) -> Result<bool, rusqlite::Error> {
+    match conn.query_row::<i32,_,_>(
+        "SELECT COUNT(*) FROM books WHERE id = $1",
+        [book_id],
+        |row| Ok(row.get(0)?)
+    ) {
+        Ok(count) => return Ok(count == 1),
+        Err(err) => return Err(err),
+    }
 }
