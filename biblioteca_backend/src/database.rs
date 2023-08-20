@@ -148,20 +148,3 @@ fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
         )
         .unwrap();
 }
-
-pub fn insert_mock_data() -> Result<()> {
-    let conn = Connection::open("library.db")?;
-
-    let book = Book {
-        id: Uuid::new_v4(),
-        name: "Harry Potter and the Philosopher's Stone".to_string(),
-        description: "The boy who lived starts his journey.".to_string(),
-    };
-
-    conn.execute(
-        "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
-        (&book.id, &book.name, &book.description),
-    )?;
-
-    Ok(())
-}
