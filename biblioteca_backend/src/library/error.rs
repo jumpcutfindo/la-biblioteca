@@ -3,6 +3,8 @@ use std::fmt;
 #[derive(thiserror::Error, Debug)]
 pub enum LibraryError {
     DatabaseError(#[from] rusqlite::Error),
+    UserNotExists,
+    BookNotExists,
     ResourceNotExists,
     BookAlreadyBorrowed,
     BookAlreadyReturned,
@@ -15,6 +17,10 @@ impl fmt::Display for LibraryError {
         match *self {
             LibraryError::DatabaseError(..) =>
                 write!(f, "there was an error in accessing the database"),
+            LibraryError::UserNotExists =>
+                write!(f, "user does not exist"),
+            LibraryError::BookNotExists => 
+                write!(f, "book does not exist"),
             LibraryError::ResourceNotExists =>
                 write!(f, "either user or book does not exist"),
             LibraryError::BookAlreadyBorrowed =>
