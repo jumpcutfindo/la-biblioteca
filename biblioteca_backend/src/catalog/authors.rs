@@ -65,7 +65,6 @@ async fn create_author(
         name: payload.name,
         description: payload.description,
         country: payload.country,
-        language: payload.language,
     };
 
     match add_author_to_db(state, author).await {
@@ -108,7 +107,6 @@ async fn update_author(
         name: payload.name,
         description: payload.description,
         country: payload.country,
-        language: payload.language,
     };
 
     match update_author_in_db(state, author).await {

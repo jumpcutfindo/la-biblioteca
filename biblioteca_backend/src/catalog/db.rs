@@ -32,6 +32,7 @@ pub async fn list_books_from_db(
             id: row.get(0)?,
             name: row.get(1)?,
             description: row.get(2)?,
+            language: row.get(3)?,
         })
     })?
     .map(|book| book.unwrap())
@@ -52,6 +53,7 @@ pub async fn get_book_from_db(
                 id: row.get(0)?,
                 name: row.get(1)?,
                 description: row.get(2)?,
+                language: row.get(3)?,
             })
         })
 }
@@ -68,8 +70,8 @@ pub async fn add_book_to_db(
 
     // Add the book itself
     tx.execute(
-        "INSERT INTO books (id, name, description) VALUES (?1, ?2, ?3)",
-        (&book.id, &book.name, &book.description),
+        "INSERT INTO books (id, name, description, language) VALUES (?1, ?2, ?3, ?4)",
+        (&book.id, &book.name, &book.description, &book.language),
     )?;
 
     // Add link between author and book
@@ -110,11 +112,12 @@ pub async fn update_book_in_db(
     tx.execute(
         "UPDATE books
         SET name = $1,
-            description = $2
+            description = $2,
+            language = $3,
         WHERE
-            id = $3;
+            id = $4;
         ",
-        (book.name, book.description, book.id),
+        (book.name, book.description, book.language, book.id),
     )?;
 
     // Update association
@@ -158,7 +161,6 @@ pub async fn list_authors_from_db(
             name: row.get(1)?,
             description: row.get(2)?,
             country: row.get(3)?,
-            language: row.get(4)?,
         })
     })?
     .map(|author| author.unwrap())
@@ -180,7 +182,6 @@ pub async fn get_author_from_db(
                 name: row.get(1)?,
                 description: row.get(2)?,
                 country: row.get(3)?,
-                language: row.get(4)?,
             })
         })
 }
@@ -190,8 +191,8 @@ pub async fn add_author_to_db(
     author: Author,
 ) -> Result<Author> {
     state.db_pool.get().unwrap().execute(
-        "INSERT INTO authors (id, name, description, country, language) VALUES (?1, ?2, ?3, ?4, ?5)",
-        (&author.id, &author.name, &author.description, &author.country, &author.language),
+        "INSERT INTO authors (id, name, description, country) VALUES (?1, ?2, ?3, ?4)",
+        (&author.id, &author.name, &author.description, &author.country),
     )?;
 
     Ok(author)
@@ -217,12 +218,11 @@ pub async fn update_author_in_db(
         "UPDATE authors
         SET name = $1,
             description = $2,
-            country = $3,
-            language = $4
+            country = $3
         WHERE
             id = $5;
         ",
-        (author.name, author.description, author.country, author.language, author.id),
+        (author.name, author.description, author.country, author.id),
     )?;
 
     Ok(())

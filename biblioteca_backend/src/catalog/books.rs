@@ -74,6 +74,7 @@ async fn create_book(
         id: Uuid::new_v4(),
         name: payload.name,
         description: payload.description,
+        language: payload.language,
     };
 
     if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
@@ -121,6 +122,7 @@ async fn update_book(
         id: Uuid::from_str(&id).unwrap(),
         name: payload.name,
         description: payload.description,
+        language: payload.language,
     };
 
     if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
