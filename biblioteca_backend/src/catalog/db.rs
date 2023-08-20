@@ -142,7 +142,7 @@ pub async fn list_authors_from_db(
 ) -> Result<Vec<Author>> {
     let conn = state.db_pool.get().unwrap();
 
-    let mut stmt_string = String::from("SELECT * FROM books WHERE 1=1");
+    let mut stmt_string = String::from("SELECT * FROM authors WHERE 1=1");
 
     if params.contains_key("name") {
         stmt_string.push_str(&format!(" AND name LIKE %{}%", params.get("name").unwrap()));
