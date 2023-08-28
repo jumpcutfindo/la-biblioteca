@@ -4,9 +4,9 @@ use r2d2_sqlite::SqliteConnectionManager;
 
 use crate::{catalog::{books::books_router, authors::authors_router}, users::users::users_router, library::library::library_router, database::setup_db};
 
-pub fn app() -> Router {
+pub fn app(database_path: String) -> Router {
     // Create an in-memory db
-    let pool = setup_db().unwrap();
+    let pool = setup_db(database_path).unwrap();
 
     let state = AppState {
         db_pool: pool,

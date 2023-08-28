@@ -3,10 +3,10 @@ use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::Result;
 use uuid::Uuid;
 
-pub fn setup_db() -> Result<Pool<SqliteConnectionManager>> {
+pub fn setup_db(database_path: String) -> Result<Pool<SqliteConnectionManager>> {
     tracing::debug!("Setting up our in-memory, SQLite database...");
 
-    let manager = SqliteConnectionManager::file("library.db");
+    let manager = SqliteConnectionManager::file(database_path);
     let pool = r2d2::Pool::new(manager).unwrap();
 
     setup_catalog_tables(&pool);
