@@ -1,10 +1,12 @@
+use std::fs::remove_file;
+
 use biblioteca_backend::{catalog::model::{Author, Book}, database::setup_db};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use uuid::Uuid;
 
 pub struct MockDatabaseBuilder {
-    connection: Pool<SqliteConnectionManager>,
+    pub connection: Pool<SqliteConnectionManager>,
 }
 
 impl MockDatabaseBuilder {
@@ -14,7 +16,11 @@ impl MockDatabaseBuilder {
         };
     }
 
-    pub fn with_author(&self, author: Author) -> &MockDatabaseBuilder {
+    pub fn teardown(database_path: String) {
+        remove_file(database_path).unwrap();
+    }
+
+    pub fn with_author(self, author: &Author) -> MockDatabaseBuilder {
         self.connection.get().unwrap().execute(
             "INSERT INTO authors (id, name, description, country) VALUES (?1, ?2, ?3, ?4)",
             (&author.id, &author.name, &author.description, &author.country),
@@ -23,7 +29,7 @@ impl MockDatabaseBuilder {
         return self;
     }
 
-    pub fn with_book(&self, book: Book, author_id: Uuid) -> &MockDatabaseBuilder {
+    pub fn with_book(self, book: &Book, author_id: &Uuid) -> MockDatabaseBuilder {
         self.connection.get().unwrap().execute(
             "INSERT INTO books (id, name, description, language) VALUES (?1, ?2, ?3, ?4)",
             (&book.id, &book.name, &book.description, &book.language),
@@ -35,5 +41,9 @@ impl MockDatabaseBuilder {
         ).unwrap();
 
         return self;
+    }
+
+    pub fn build(self) -> Pool<SqliteConnectionManager> {
+        return self.connection;
     }
 }
