@@ -21,7 +21,7 @@ async fn main() {
     let database_pool = setup_db(String::from("library.db")).unwrap();
     let state = app::create_new_state(database_pool);
     
-    let app = app::app(State(state));
+    let app = app::create_app(State(state));
 
     // Run app using hyper, listens on port 3000
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

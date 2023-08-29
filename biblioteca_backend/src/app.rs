@@ -8,10 +8,9 @@ pub fn create_new_state(db_pool: Pool<SqliteConnectionManager>) -> AppState {
     return AppState {
         db_pool,
     }
-    
 }
 
-pub fn app(State(state): State<AppState>) -> Router {
+pub fn create_app(State(state): State<AppState>) -> Router {
     // Create router
     Router::new()
         .merge(books_router())
