@@ -12,10 +12,10 @@ async fn add_book_successful() {
     let author = MockCatalog::new_author();
     let book = MockCatalog::new_book();
 
-    let db = MockDatabaseBuilder::create("mock_library.db".to_string())
+    let mut db = MockDatabaseBuilder::create("mock_library.db".to_string())
         .with_author(&author)
-        .with_book(&book, &author.id)
         .build();
+    let querier = MockDatabaseQuerier::of(&mut db);
 
     let state = create_mock_state(db);
     let app = create_mock_app(state);
@@ -38,6 +38,9 @@ async fn add_book_successful() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::OK);
+
+    assert_eq!(querier.contains_book(&book), true);
+    assert_eq!(querier.contains_book_author_mapping(&book.id, &author.id), true);
 
     MockDatabaseBuilder::teardown("mock_library.db".to_string());
 }

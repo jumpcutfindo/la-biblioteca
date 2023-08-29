@@ -1,13 +1,11 @@
 use biblioteca_backend::catalog::model::{Book, Author};
-use rand::{rngs::ThreadRng, Rng};
-use mime::CHARSET;
+use rand::Rng;
 use random_string::generate;
 use uuid::Uuid;
 
 pub struct MockCatalog {}
 
 impl MockCatalog {
-
     pub fn new_book() -> Book {
         return Book {
             id: Uuid::new_v4(),
