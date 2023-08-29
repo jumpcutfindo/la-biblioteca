@@ -1,7 +1,7 @@
 use std::fs::remove_file;
 
 use biblioteca_backend::{catalog::model::{Author, Book}, database::setup_db};
-use r2d2::{Pool, PooledConnection};
+use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use uuid::Uuid;
 
@@ -48,16 +48,20 @@ impl MockDatabaseBuilder {
     }
 }
 
-pub struct MockDatabaseQuerier {}
+pub struct MockDatabaseQuerier {
+    pool: Pool<SqliteConnectionManager>,
+}
 
 impl MockDatabaseQuerier {
-    pub fn new_pool(database_path: String) -> Pool<SqliteConnectionManager> {
+    pub fn create(database_path: String) -> MockDatabaseQuerier {
         let manager = SqliteConnectionManager::file(database_path);
-        return r2d2::Pool::new(manager).unwrap();
+        return MockDatabaseQuerier {
+            pool: r2d2::Pool::new(manager).unwrap(),
+        };
     }
 
-    pub fn contains_num_books(pool: &Pool<SqliteConnectionManager>, num: i32) -> bool {
-        match pool.get().unwrap().query_row::<i32,_,_>(
+    pub fn contains_num_books(&self, num: i32) -> bool {
+        match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM books", 
             (),
             |row| Ok(row.get(0)?)
@@ -67,8 +71,8 @@ impl MockDatabaseQuerier {
         }
     }
 
-    pub fn contains_book(pool: &Pool<SqliteConnectionManager>, book: &Book) -> bool {
-        match pool.get().unwrap().query_row::<i32,_,_>(
+    pub fn contains_book(&self, book: &Book) -> bool {
+        match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM books WHERE id = ?1 AND name = ?2 AND description = ?3 AND language = ?4", 
             (&book.id, &book.name, &book.description, &book.language),
             |row| Ok(row.get(0)?)
@@ -78,8 +82,8 @@ impl MockDatabaseQuerier {
         }
     }
 
-    pub fn contains_author(pool: &Pool<SqliteConnectionManager>, author: &Author) -> bool {
-        match pool.get().unwrap().query_row::<i32,_,_>(
+    pub fn contains_author(&self, author: &Author) -> bool {
+        match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM authors WHERE id = ?1 AND name = ?2 AND description = ?3 AND country = ?4", 
             (&author.id, &author.name, &author.description, &author.country),
             |row| Ok(row.get(0)?)
@@ -89,8 +93,8 @@ impl MockDatabaseQuerier {
         }
     }
 
-    pub fn contains_book_author_mapping(pool: &Pool<SqliteConnectionManager>, book_id: &Uuid, author_id: &Uuid) -> bool {
-        match pool.get().unwrap().query_row::<i32,_,_>(
+    pub fn contains_book_author_mapping(&self, book_id: &Uuid, author_id: &Uuid) -> bool {
+        match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM map_books_to_authors WHERE book_id = ?1 AND author_id = ?2", 
             (book_id, author_id),
             |row| Ok(row.get(0)?)

@@ -8,11 +8,13 @@ use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::Moc
 mod mocker;
 
 #[tokio::test]
-async fn add_book_successful() {
+async fn add_book_correct_parameters_successful() {
+    let database_path = "add_book_successful.sqlite";
+
     let author = MockCatalog::new_author();
     let book = MockCatalog::new_book();
 
-    let db = MockDatabaseBuilder::create("mock_library.sqlite".to_string())
+    let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
         .build();
 
@@ -42,23 +44,25 @@ async fn add_book_successful() {
     let created_book: Book = serde_json::from_slice(&body).unwrap();
 
     {
-        let query_pool = MockDatabaseQuerier::new_pool("mock_library.sqlite".to_string());
-        assert_eq!(MockDatabaseQuerier::contains_book(&query_pool, &created_book), true, "checking if book was added properly");
-        assert_eq!(MockDatabaseQuerier::contains_author(&query_pool, &author), true, "checking if author was added properly");
-        assert_eq!(MockDatabaseQuerier::contains_book_author_mapping(&query_pool, &created_book.id, &author.id), true, "checking if book to author mapping exists");
+        let querier = MockDatabaseQuerier::create(database_path.to_string());
+        assert_eq!(querier.contains_book(&created_book), true, "checking if book was added properly");
+        assert_eq!(querier.contains_author(&author), true, "checking if author was added properly");
+        assert_eq!(querier.contains_book_author_mapping(&created_book.id, &author.id), true, "checking if book to author mapping exists");
     }
     
-    MockDatabaseBuilder::teardown("mock_library.sqlite".to_string());
+    MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
 #[tokio::test]
 async fn get_all_books_successful() {
+    let database_path = "get_all_books_successful.sqlite";
+    
     let author = MockCatalog::new_author();
     let book_a = MockCatalog::new_book();
     let book_b = MockCatalog::new_book();
     let book_c = MockCatalog::new_book();
 
-    let db = MockDatabaseBuilder::create("mock_library_1.sqlite".to_string())
+    let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
         .with_book(&book_a, &author.id)
         .with_book(&book_b, &author.id)
@@ -87,9 +91,9 @@ async fn get_all_books_successful() {
     println!("{:?}", created_books);
 
     {
-        let query_pool = MockDatabaseQuerier::new_pool("mock_library_1.sqlite".to_string());
-        assert_eq!(MockDatabaseQuerier::contains_num_books(&query_pool, created_books.len() as i32), true, "checking if book count is correct");
+        let querier = MockDatabaseQuerier::create(database_path.to_string());
+        assert_eq!(querier.contains_num_books(created_books.len() as i32), true, "checking if book count is correct");
     }
 
-    MockDatabaseBuilder::teardown("mock_library_1.sqlite".to_string());
+    MockDatabaseBuilder::teardown(database_path.to_string());
 }
