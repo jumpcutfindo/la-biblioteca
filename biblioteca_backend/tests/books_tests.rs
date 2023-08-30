@@ -3,7 +3,7 @@ use biblioteca_backend::catalog::model::Book;
 use serde_json::json;
 use tower::ServiceExt;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::MockCatalog, app::{create_mock_state, create_mock_app}};
+use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::MockCatalog, app::create_mock_app};
 
 mod mocker;
 
@@ -18,8 +18,7 @@ async fn add_book_correct_parameters_successful() {
         .with_author(&author)
         .build();
 
-    let state = create_mock_state(db);
-    let app = create_mock_app(state);
+    let app = create_mock_app(db);
 
     let response = app
         .oneshot(
@@ -69,8 +68,7 @@ async fn get_all_books_successful() {
         .with_book(&book_c, &author.id)
         .build();
 
-    let state = create_mock_state(db);
-    let app = create_mock_app(state);
+    let app = create_mock_app(db);
 
     let response = app
         .oneshot(
@@ -87,9 +85,7 @@ async fn get_all_books_successful() {
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
-
-    println!("{:?}", created_books);
-
+ 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
         assert_eq!(querier.contains_num_books(created_books.len() as i32), true, "checking if book count is correct");
