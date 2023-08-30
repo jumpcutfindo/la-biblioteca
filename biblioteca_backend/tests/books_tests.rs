@@ -53,6 +53,26 @@ async fn add_book_correct_parameters_successful() {
 }
 
 #[tokio::test]
+async fn add_book_wrong_parameters_unsuccessful() {
+
+}
+
+#[tokio::test]
+async fn add_book_missing_parameters_unsuccessful() {
+
+}
+
+#[tokio::test]
+async fn add_book_additional_parameters_successful() {
+
+}
+
+#[tokio::test]
+async fn add_book_invalid_author_unsuccessful() {
+    
+}
+
+#[tokio::test]
 async fn get_all_books_successful() {
     let database_path = "get_all_books_successful.sqlite";
     
