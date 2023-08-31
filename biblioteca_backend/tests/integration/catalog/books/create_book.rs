@@ -11,8 +11,8 @@ use crate::mocker::{
 };
 
 #[tokio::test]
-async fn add_book_correct_parameters_successful() {
-    let database_path = "add_book_correct_parameters_successful.sqlite";
+async fn create_book_correct_parameters_successful() {
+    let database_path = "create_book_correct_parameters_successful.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book = MockCatalog::new_book().build();
@@ -75,8 +75,8 @@ async fn add_book_correct_parameters_successful() {
 }
 
 #[tokio::test]
-async fn add_book_wrong_parameters_unsuccessful() {
-    let database_path = "add_book_wrong_parameters_unsuccessful.sqlite";
+async fn create_book_wrong_parameters_unsuccessful() {
+    let database_path = "create_book_wrong_parameters_unsuccessful.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book = MockCatalog::new_book().build();
@@ -117,8 +117,8 @@ async fn add_book_wrong_parameters_unsuccessful() {
 }
 
 #[tokio::test]
-async fn add_book_missing_parameters_unsuccessful() {
-    let database_path = "add_book_missing_parameters_unsuccessful.sqlite";
+async fn create_book_missing_parameters_unsuccessful() {
+    let database_path = "create_book_missing_parameters_unsuccessful.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book = MockCatalog::new_book().build();
@@ -158,8 +158,8 @@ async fn add_book_missing_parameters_unsuccessful() {
 }
 
 #[tokio::test]
-async fn add_book_additional_parameters_successful() {
-    let database_path = "add_book_additional_parameters_successful.sqlite";
+async fn create_book_additional_parameters_successful() {
+    let database_path = "create_book_additional_parameters_successful.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book = MockCatalog::new_book().build();
@@ -212,8 +212,8 @@ async fn add_book_additional_parameters_successful() {
 }
 
 #[tokio::test]
-async fn add_book_invalid_author_unsuccessful() {
-    let database_path = "add_book_invalid_author_unsuccessful.sqlite";
+async fn create_book_invalid_author_unsuccessful() {
+    let database_path = "create_book_invalid_author_unsuccessful.sqlite";
     let correct_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769f").unwrap();
     let incorrect_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769e").unwrap();
 
