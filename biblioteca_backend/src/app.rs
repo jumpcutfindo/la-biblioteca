@@ -1,13 +1,15 @@
-use axum::{Router, extract::State};
+use axum::{extract::State, Router};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 
-use crate::{catalog::{books::books_router, authors::authors_router}, users::users::users_router, library::library::library_router};
+use crate::{
+    catalog::{authors::authors_router, books::books_router},
+    library::library::library_router,
+    users::users::users_router,
+};
 
 pub fn create_new_state(db_pool: Pool<SqliteConnectionManager>) -> AppState {
-    return AppState {
-        db_pool,
-    }
+    return AppState { db_pool };
 }
 
 pub fn create_app(State(state): State<AppState>) -> Router {

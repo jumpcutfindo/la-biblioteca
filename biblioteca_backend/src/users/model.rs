@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -26,5 +26,3 @@ pub struct FullUser {
     pub username: String,
     pub user_role: UserRole,
 }
-
-

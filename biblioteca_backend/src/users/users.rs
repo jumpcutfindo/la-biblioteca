@@ -1,12 +1,23 @@
 use std::collections::HashMap;
 
-use axum::{extract::{State, Path, Query}, Json, http::StatusCode, routing::{get, delete, post}, Router};
+use axum::{
+    extract::{Path, Query, State},
+    http::StatusCode,
+    routing::{delete, get, post},
+    Json, Router,
+};
 use uuid::Uuid;
 
-use crate::{error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db, delete_user_from_db}};
 use crate::app::AppState;
+use crate::{
+    error::Error,
+    users::db::{
+        add_user_to_db, delete_user_from_db, get_user_from_db, list_user_roles_from_db,
+        list_users_from_db,
+    },
+};
 
-use super::model::{User, CreateUserRequest, UserRole, FullUser};
+use super::model::{CreateUserRequest, FullUser, User, UserRole};
 
 pub fn users_router() -> Router<AppState> {
     Router::new()
@@ -24,12 +35,10 @@ pub async fn get_user(
     tracing::debug!("GET /users with id: {:?}", id);
 
     match get_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
-        Ok(user) => {
-            return Ok(Json(user))
-        },
+        Ok(user) => return Ok(Json(user)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::not_found())
+            return Err(Error::not_found());
         }
     }
 }
@@ -41,28 +50,22 @@ pub async fn list_users(
     tracing::debug!("GET /users with query params: {:?}", params);
 
     match list_users_from_db(state).await {
-        Ok(users) => {
-            return Ok(Json(users))
-        },
+        Ok(users) => return Ok(Json(users)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+            return Err(Error::server_issue());
         }
     }
 }
 
-pub async fn list_user_roles(
-    state: State<AppState>,
-) -> Result<Json<Vec<UserRole>>, Error> {
+pub async fn list_user_roles(state: State<AppState>) -> Result<Json<Vec<UserRole>>, Error> {
     tracing::debug!("GET /users/roles");
 
     match list_user_roles_from_db(state).await {
-        Ok(user_roles) => {
-            return Ok(Json(user_roles))
-        },
+        Ok(user_roles) => return Ok(Json(user_roles)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+            return Err(Error::server_issue());
         }
     }
 }
@@ -80,9 +83,7 @@ pub async fn add_user(
     let user_role_id = payload.user_role_id;
 
     match add_user_to_db(state, user, user_role_id).await {
-        Ok(user) => {
-            return Ok(Json(user))
-        },
+        Ok(user) => return Ok(Json(user)),
         Err(err) => {
             tracing::warn!("{}", err);
 
@@ -98,12 +99,10 @@ pub async fn delete_user(
     tracing::debug!("DELETE /users with id: {:?}", id);
 
     match delete_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
-        Ok(()) => {
-            return Ok(StatusCode::NO_CONTENT)
-        },
+        Ok(()) => return Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+            return Err(Error::server_issue());
         }
     }
 }

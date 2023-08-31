@@ -12,7 +12,7 @@ pub fn setup_db(database_path: String) -> Result<Pool<SqliteConnectionManager>> 
     setup_catalog_tables(&pool);
     setup_user_tables(&pool);
     setup_library_tables(&pool);
-        
+
     tracing::debug!("Database setup complete! :)");
     Ok(pool)
 }
@@ -20,7 +20,7 @@ pub fn setup_db(database_path: String) -> Result<Pool<SqliteConnectionManager>> 
 fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
     tracing::debug!("Creating 'catalog' related tables...");
     tracing::debug!("> Creating table 'books'...");
-    
+
     pool.get()
         .unwrap()
         .execute(
@@ -29,7 +29,7 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
                 name            TEXT NOT NULL,
                 description     TEXT NOT NULL,
                 language        TEXT NOT NULL
-            )", 
+            )",
             (),
         )
         .unwrap();
@@ -44,7 +44,7 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
                 description     TEXT,
                 country         TEXT NOT NULL
             )",
-            ()
+            (),
         )
         .unwrap();
 
@@ -61,8 +61,8 @@ fn setup_catalog_tables(pool: &Pool<SqliteConnectionManager>) {
                 CONSTRAINT fk_authors
                     FOREIGN KEY(author_id) REFERENCES authors(id)
                     ON DELETE CASCADE
-            )", 
-            ()
+            )",
+            (),
         )
         .unwrap();
 }
@@ -78,7 +78,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
                 role_name               TEXT NOT NULL,
                 num_borrowable_books    INT NOT NULL
             )",
-            ()
+            (),
         )
         .unwrap();
 
@@ -89,9 +89,27 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
     )
     .unwrap();
 
-    user_role_stmt.execute((Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(), String::from("admin"), 0)).unwrap();
-    user_role_stmt.execute((Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(), String::from("adult_user"), 8)).unwrap();
-    user_role_stmt.execute((Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(), String::from("child_user"), 4)).unwrap();
+    user_role_stmt
+        .execute((
+            Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(),
+            String::from("admin"),
+            0,
+        ))
+        .unwrap();
+    user_role_stmt
+        .execute((
+            Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(),
+            String::from("adult_user"),
+            8,
+        ))
+        .unwrap();
+    user_role_stmt
+        .execute((
+            Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(),
+            String::from("child_user"),
+            4,
+        ))
+        .unwrap();
 
     tracing::debug!("> Creating table 'users'...");
     pool.get()
@@ -100,8 +118,8 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
             "CREATE TABLE IF NOT EXISTS users (
                 id              BLOB PRIMARY KEY,
                 username        TEXT UNIQUE NOT NULL
-            )", 
-            ()
+            )",
+            (),
         )
         .unwrap();
 
@@ -118,7 +136,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
                 CONSTRAINT fk_user_roles
                     FOREIGN KEY(user_role_id) REFERENCES user_roles(id)
             )",
-        ()
+            (),
         )
         .unwrap();
 }
@@ -141,8 +159,8 @@ fn setup_library_tables(pool: &Pool<SqliteConnectionManager>) {
                 CONSTRAINT fk_books
                     FOREIGN KEY (book_id) REFERENCES books(id)
                     ON DELETE CASCADE
-            )", 
-            ()
+            )",
+            (),
         )
         .unwrap();
 }

@@ -2,13 +2,15 @@ use crate::app::AppState;
 use crate::catalog::db::is_author_exists_in_db;
 use crate::catalog::error::CatalogError;
 
-use super::model::{Book, CreateBookRequest, UpdateBookRequest};
-use super::db::{ list_books_from_db, get_book_from_db, add_book_to_db, delete_book_from_db, update_book_in_db };
 use super::super::error::Error;
+use super::db::{
+    add_book_to_db, delete_book_from_db, get_book_from_db, list_books_from_db, update_book_in_db,
+};
+use super::model::{Book, CreateBookRequest, UpdateBookRequest};
 
-use axum::Router;
 use axum::extract::State;
-use axum::routing::{get, delete, put, post};
+use axum::routing::{delete, get, post, put};
+use axum::Router;
 use uuid::Uuid;
 
 use std::{collections::HashMap, str::FromStr};
@@ -29,19 +31,14 @@ pub fn books_router() -> Router<AppState> {
 }
 
 // Retrieves a specific book, by id
-async fn get_book(
-    state: State<AppState>,
-    Path(id): Path<String>,
-) -> Result<Json<Book>, Error> {
+async fn get_book(state: State<AppState>, Path(id): Path<String>) -> Result<Json<Book>, Error> {
     tracing::debug!("GET /books with id: {:?}", id);
-    
+
     match get_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(book) => {
-            return Ok(Json(book))
-        },
+        Ok(book) => return Ok(Json(book)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::not_found())
+            return Err(Error::not_found());
         }
     };
 }
@@ -54,13 +51,11 @@ async fn list_books(
     tracing::debug!("GET /books with query params: {:?}", params);
 
     match list_books_from_db(state, params).await {
-        Ok(books) => {
-            return Ok(Json(books))
-        },
+        Ok(books) => return Ok(Json(books)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
-        },
+            return Err(Error::server_issue());
+        }
     }
 }
 
@@ -78,13 +73,11 @@ async fn create_book(
     };
 
     if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
-        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()))
+        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()));
     }
 
     match add_book_to_db(state, book, payload.author_id).await {
-        Ok(book) => {
-            return Ok(Json(book))
-        },
+        Ok(book) => return Ok(Json(book)),
         Err(err) => {
             tracing::warn!("{}", err);
             return Err(Error::server_issue());
@@ -93,20 +86,15 @@ async fn create_book(
 }
 
 // Deletes a specific book
-async fn delete_book(
-    state: State<AppState>,
-    Path(id): Path<String>,
-) -> Result<StatusCode, Error> {
+async fn delete_book(state: State<AppState>, Path(id): Path<String>) -> Result<StatusCode, Error> {
     tracing::debug!("DELETE /books with id: {:?}", id);
 
     match delete_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(()) => {
-            return Ok(StatusCode::NO_CONTENT)
-        },
+        Ok(()) => return Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
-        },
+            return Err(Error::server_issue());
+        }
     }
 }
 
@@ -126,13 +114,11 @@ async fn update_book(
     };
 
     if !is_author_exists_in_db(&state, payload.author_id).unwrap() {
-        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()))
+        return Err(Error::bad_request(CatalogError::AuthorNotFound.to_string()));
     }
 
     match update_book_in_db(state, book, payload.author_id).await {
-        Ok(()) => {
-            return Ok(StatusCode::NO_CONTENT)
-        },
+        Ok(()) => return Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
             return Err(Error::server_issue());

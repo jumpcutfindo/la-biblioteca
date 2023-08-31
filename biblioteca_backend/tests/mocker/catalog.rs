@@ -1,4 +1,4 @@
-use biblioteca_backend::catalog::model::{Book, Author};
+use biblioteca_backend::catalog::model::{Author, Book};
 use rand::Rng;
 use random_string::generate;
 use uuid::Uuid;
@@ -9,7 +9,7 @@ pub struct MockBookBuilder {
     id: Uuid,
     name: String,
     description: String,
-    language: String
+    language: String,
 }
 
 impl MockBookBuilder {
@@ -39,7 +39,7 @@ impl MockBookBuilder {
             name: self.name,
             description: self.description,
             language: self.language,
-        }
+        };
     }
 }
 
@@ -77,7 +77,7 @@ impl MockAuthorBuilder {
             name: self.name,
             description: self.description,
             country: self.country,
-        }
+        };
     }
 }
 
@@ -88,7 +88,7 @@ impl MockCatalog {
             name: Self::random_string(8, 24),
             description: Self::random_string(32, 64),
             language: Self::random_string(32, 64),
-        }
+        };
     }
 
     pub fn new_author() -> MockAuthorBuilder {
@@ -97,7 +97,7 @@ impl MockCatalog {
             name: Self::random_string(16, 24),
             description: Self::random_string(32, 64),
             country: Self::random_string(8, 16),
-        }
+        };
     }
 
     fn random_string(min: usize, max: usize) -> String {

@@ -27,18 +27,15 @@ impl Error {
     }
 
     pub fn not_found() -> Self {
-        return Error::NotFound(NotFound {  })
+        return Error::NotFound(NotFound {});
     }
 
     pub fn bad_request(message: String) -> Self {
-        return Error::BadRequest(BadRequest {
-            message: message,
-          }
-        )
+        return Error::BadRequest(BadRequest { message: message });
     }
 
     pub fn server_issue() -> Self {
-        return Error::ServerIssue(ServerIssue {  })
+        return Error::ServerIssue(ServerIssue {});
     }
 }
 
@@ -61,12 +58,8 @@ pub struct BadRequest {
 
 #[derive(thiserror::Error, Debug)]
 #[error("Resource not found!")]
-pub struct NotFound {
-
-}
+pub struct NotFound {}
 
 #[derive(thiserror::Error, Debug)]
 #[error("Internal server error -- check logs for more details!")]
-pub struct ServerIssue {
-
-}
+pub struct ServerIssue {}

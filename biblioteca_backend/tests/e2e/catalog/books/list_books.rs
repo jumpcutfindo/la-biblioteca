@@ -1,14 +1,17 @@
 use biblioteca_backend::catalog::model::Book;
-use hyper::{Request, Body, StatusCode};
+use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 
-
-use crate::mocker::{catalog::MockCatalog, db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app};
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn list_books_successful() {
     let database_path = "list_books_successful.sqlite";
-    
+
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
     let book_b = MockCatalog::new_book().build();
@@ -29,19 +32,27 @@ async fn list_books_successful() {
                 .method("GET")
                 .uri("/books")
                 .body(Body::empty())
-                .unwrap()
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
- 
+
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(querier.contains_num_books(returned_books.len() as i32), true, "checking if book count is correct");
+        assert_eq!(
+            querier.contains_num_books(returned_books.len() as i32),
+            true,
+            "checking if book count is correct"
+        );
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
@@ -80,12 +91,16 @@ async fn list_books_with_name_search_successful() {
                 .method("GET")
                 .uri("/books?name=Alice")
                 .body(Body::empty())
-                .unwrap()
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
@@ -96,7 +111,7 @@ async fn list_books_with_name_search_successful() {
             assert_eq!(book.name.contains("Alice"), true);
         }
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -133,12 +148,16 @@ async fn list_books_with_language_search_successful() {
                 .method("GET")
                 .uri("/books?language=English")
                 .body(Body::empty())
-                .unwrap()
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
@@ -149,7 +168,7 @@ async fn list_books_with_language_search_successful() {
             assert_eq!(book.language.contains("English"), true);
         }
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -178,12 +197,16 @@ async fn list_books_with_search_wrong_params_successful() {
                 .method("GET")
                 .uri("/books?unsupported_params=Test")
                 .body(Body::empty())
-                .unwrap()
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
@@ -191,6 +214,6 @@ async fn list_books_with_search_wrong_params_successful() {
     {
         assert_eq!(returned_books.len() == 3, true);
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }

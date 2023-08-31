@@ -1,4 +1,4 @@
-pub mod users;
 pub mod model;
+pub mod users;
 
 mod db;

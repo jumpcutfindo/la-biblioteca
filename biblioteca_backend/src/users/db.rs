@@ -1,14 +1,12 @@
 use axum::extract::State;
-use rusqlite::{Result, Error};
+use rusqlite::{Error, Result};
 use uuid::Uuid;
 
 use crate::app::AppState;
 
-use super::model::{User, UserRole, FullUser};
+use super::model::{FullUser, User, UserRole};
 
-pub async fn list_users_from_db(
-    State(state): State<AppState>,
-) -> Result<Vec<FullUser>> {
+pub async fn list_users_from_db(State(state): State<AppState>) -> Result<Vec<FullUser>> {
     let conn = state.db_pool.get().unwrap();
 
     let mut stmt = conn.prepare("
@@ -25,8 +23,8 @@ pub async fn list_users_from_db(
                 user_role: UserRole {
                     id: row.get(2)?,
                     name: row.get(3)?,
-                    num_borrowable_books: row.get(4)?, 
-                }
+                    num_borrowable_books: row.get(4)?,
+                },
             })
         })?
         .map(|user| user.unwrap())
@@ -35,9 +33,7 @@ pub async fn list_users_from_db(
     Ok(users)
 }
 
-pub async fn list_user_roles_from_db(
-    State(state): State<AppState>,
-) -> Result<Vec<UserRole>> {
+pub async fn list_user_roles_from_db(State(state): State<AppState>) -> Result<Vec<UserRole>> {
     let conn = state.db_pool.get().unwrap();
 
     let mut stmt = conn.prepare("SELECT * FROM user_roles")?;
@@ -56,16 +52,13 @@ pub async fn list_user_roles_from_db(
     Ok(user_roles)
 }
 
-pub async fn get_user_from_db(
-    State(state): State<AppState>,
-    id: Uuid
-) -> Result<FullUser> {
+pub async fn get_user_from_db(State(state): State<AppState>, id: Uuid) -> Result<FullUser> {
     state.db_pool.get().unwrap().query_row(
         "SELECT a.id as user_id, a.username, c.id as user_role_id, c.role_name, c.num_borrowable_books 
         FROM users a, map_users_to_user_roles b, user_roles c 
         WHERE a.id = b.user_id AND b.user_role_id = c.id
         AND a.id = $1", 
-        [id], 
+        [id],
     |row| {
         Ok(FullUser {
             id: row.get(0)?,
@@ -73,7 +66,7 @@ pub async fn get_user_from_db(
             user_role: UserRole {
                 id: row.get(2)?,
                 name: row.get(3)?,
-                num_borrowable_books: row.get(4)?, 
+                num_borrowable_books: row.get(4)?,
             }
         })
     })
@@ -83,7 +76,7 @@ pub async fn add_user_to_db(
     State(state): State<AppState>,
     user: User,
     user_role_id: Uuid,
-) -> Result<User, Error>{
+) -> Result<User, Error> {
     let mut conn = state.db_pool.get().unwrap();
 
     let tx = conn.transaction()?;
@@ -105,14 +98,12 @@ pub async fn add_user_to_db(
     Ok(user)
 }
 
-pub async fn delete_user_from_db(
-    State(state): State<AppState>,
-    id: Uuid,
-) -> Result<()> {
-    state.db_pool.get().unwrap().execute(
-        "DELETE FROM users WHERE id = $1", 
-        [id],
-    )?;
+pub async fn delete_user_from_db(State(state): State<AppState>, id: Uuid) -> Result<()> {
+    state
+        .db_pool
+        .get()
+        .unwrap()
+        .execute("DELETE FROM users WHERE id = $1", [id])?;
 
     Ok(())
 }

@@ -1,10 +1,14 @@
 use biblioteca_backend::catalog::model::Book;
-use hyper::{Request, Method, header, Body, StatusCode};
+use hyper::{header, Body, Method, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{catalog::MockCatalog, db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app};
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn add_book_correct_parameters_successful() {
@@ -25,29 +29,48 @@ async fn add_book_correct_parameters_successful() {
                 .method(Method::POST)
                 .uri("/books")
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                .body(Body::from(serde_json::to_string(&json!({ 
-                    "name": book.name,
-                    "description": book.description,
-                    "language": book.language,
-                    "author_id": author.id, 
-                })).unwrap()))
-                .unwrap()
+                .body(Body::from(
+                    serde_json::to_string(&json!({
+                        "name": book.name,
+                        "description": book.description,
+                        "language": book.language,
+                        "author_id": author.id,
+                    }))
+                    .unwrap(),
+                ))
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_book: Book = serde_json::from_slice(&body).unwrap();
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(querier.contains_book(&created_book), true, "checking if book was added properly");
-        assert_eq!(querier.contains_author(&author), true, "checking if author was added properly");
-        assert_eq!(querier.contains_book_author_mapping(&created_book.id, &author.id), true, "checking if book to author mapping exists");
+        assert_eq!(
+            querier.contains_book(&created_book),
+            true,
+            "checking if book was added properly"
+        );
+        assert_eq!(
+            querier.contains_author(&author),
+            true,
+            "checking if author was added properly"
+        );
+        assert_eq!(
+            querier.contains_book_author_mapping(&created_book.id, &author.id),
+            true,
+            "checking if book to author mapping exists"
+        );
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -70,19 +93,25 @@ async fn add_book_wrong_parameters_unsuccessful() {
                 .method(Method::POST)
                 .uri("/books")
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                .body(Body::from(serde_json::to_string(&json!({ 
-                    "name_incorrect": book.name,
-                    "description": book.description,
-                    "language": book.language,
-                    "author_id": author.id, 
-                })).unwrap()))
-                .unwrap()
+                .body(Body::from(
+                    serde_json::to_string(&json!({
+                        "name_incorrect": book.name,
+                        "description": book.description,
+                        "language": book.language,
+                        "author_id": author.id,
+                    }))
+                    .unwrap(),
+                ))
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY, "checking if response is correct (unprocessable)");
+    assert_eq!(
+        response.status(),
+        StatusCode::UNPROCESSABLE_ENTITY,
+        "checking if response is correct (unprocessable)"
+    );
 
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
@@ -106,19 +135,25 @@ async fn add_book_missing_parameters_unsuccessful() {
                 .method(Method::POST)
                 .uri("/books")
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                .body(Body::from(serde_json::to_string(&json!({ 
-                    "name": book.name,
-                    "language": book.language,
-                    "author_id": author.id, 
-                })).unwrap()))
-                .unwrap()
+                .body(Body::from(
+                    serde_json::to_string(&json!({
+                        "name": book.name,
+                        "language": book.language,
+                        "author_id": author.id,
+                    }))
+                    .unwrap(),
+                ))
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    
-    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY, "checking if response is correct (unprocessable)");
-    
+    assert_eq!(
+        response.status(),
+        StatusCode::UNPROCESSABLE_ENTITY,
+        "checking if response is correct (unprocessable)"
+    );
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -141,26 +176,36 @@ async fn add_book_additional_parameters_successful() {
                 .method(Method::POST)
                 .uri("/books")
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                .body(Body::from(serde_json::to_string(&json!({ 
-                    "name": book.name,
-                    "description": book.description,
-                    "language": book.language,
-                    "author_id": author.id,
-                    "additional_parameter": "hello world".to_string()
-                })).unwrap()))
-                .unwrap()
+                .body(Body::from(
+                    serde_json::to_string(&json!({
+                        "name": book.name,
+                        "description": book.description,
+                        "language": book.language,
+                        "author_id": author.id,
+                        "additional_parameter": "hello world".to_string()
+                    }))
+                    .unwrap(),
+                ))
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    
-    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+    assert_eq!(
+        response.status(),
+        StatusCode::OK,
+        "checking if response is OK"
+    );
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_book: Book = serde_json::from_slice(&body).unwrap();
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(querier.contains_book(&created_book), true, "checking if book was added properly");
+        assert_eq!(
+            querier.contains_book(&created_book),
+            true,
+            "checking if book was added properly"
+        );
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
@@ -172,9 +217,7 @@ async fn add_book_invalid_author_unsuccessful() {
     let correct_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769f").unwrap();
     let incorrect_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769e").unwrap();
 
-    let mut author = MockCatalog::new_author()
-        .id(correct_uuid)
-        .build();
+    let author = MockCatalog::new_author().id(correct_uuid).build();
 
     let book = MockCatalog::new_book().build();
 
@@ -190,19 +233,25 @@ async fn add_book_invalid_author_unsuccessful() {
                 .method(Method::POST)
                 .uri("/books")
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                .body(Body::from(serde_json::to_string(&json!({ 
-                    "name": book.name,
-                    "description": book.description,
-                    "language": book.language,
-                    "author_id": incorrect_uuid,
-                })).unwrap()))
-                .unwrap()
+                .body(Body::from(
+                    serde_json::to_string(&json!({
+                        "name": book.name,
+                        "description": book.description,
+                        "language": book.language,
+                        "author_id": incorrect_uuid,
+                    }))
+                    .unwrap(),
+                ))
+                .unwrap(),
         )
         .await
         .unwrap();
 
-    
-    assert_eq!(response.status(), StatusCode::BAD_REQUEST, "checking if response is correct (400)");
+    assert_eq!(
+        response.status(),
+        StatusCode::BAD_REQUEST,
+        "checking if response is correct (400)"
+    );
 
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
