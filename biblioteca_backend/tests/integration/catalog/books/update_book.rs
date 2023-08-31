@@ -126,8 +126,8 @@ async fn update_book_non_existent_book_failure() {
 }
 
 #[tokio::test]
-async fn update_book_incorrect_parameters_unsuccessful() {
-    let database_path = "update_book_incorrect_parameters_unsuccessful.sqlite";
+async fn update_book_incorrect_parameters_failure() {
+    let database_path = "update_book_incorrect_parameters_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
@@ -171,8 +171,8 @@ async fn update_book_incorrect_parameters_unsuccessful() {
 }
 
 #[tokio::test]
-async fn update_book_missing_parameters_unsuccessful() {
-    let database_path = "update_book_missing_parameters_unsuccessful.sqlite";
+async fn update_book_missing_parameters_failure() {
+    let database_path = "update_book_missing_parameters_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
@@ -278,8 +278,8 @@ async fn update_book_existing_author_successful() {
 }
 
 #[tokio::test]
-async fn update_book_non_existent_author_unsuccessful() {
-    let database_path = "update_book_non_existent_author_unsuccessful.sqlite";
+async fn update_book_non_existent_author_failure() {
+    let database_path = "update_book_non_existent_author_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
