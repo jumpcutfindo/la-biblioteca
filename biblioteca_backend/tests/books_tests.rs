@@ -355,10 +355,46 @@ async fn list_books_with_language_search_successful() {
     }
     
     MockDatabaseBuilder::teardown(database_path.to_string());
-
 }
 
 #[tokio::test]
 async fn list_books_with_search_wrong_params_successful() {
+    let database_path = "list_books_with_search_wrong_params_successful.sqlite";
 
+    let author = MockCatalog::new_author().build();
+
+    let book_a = MockCatalog::new_book().build();
+    let book_b = MockCatalog::new_book().build();
+    let book_c = MockCatalog::new_book().build();
+
+    let db = MockDatabaseBuilder::create(database_path.to_string())
+        .with_author(&author)
+        .with_book(&book_a, &author.id)
+        .with_book(&book_b, &author.id)
+        .with_book(&book_c, &author.id)
+        .build();
+
+    let app = create_mock_app(db);
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("GET")
+                .uri("/books?unsupported_params=Test")
+                .body(Body::empty())
+                .unwrap()
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
+
+    let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+    let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
+
+    {
+        assert_eq!(returned_books.len() == 3, true);
+    }
+    
+    MockDatabaseBuilder::teardown(database_path.to_string());
 }
