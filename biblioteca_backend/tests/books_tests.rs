@@ -210,8 +210,8 @@ async fn add_book_invalid_author_unsuccessful() {
 }
 
 #[tokio::test]
-async fn get_all_books_successful() {
-    let database_path = "get_all_books_successful.sqlite";
+async fn list_books_successful() {
+    let database_path = "list_books_successful.sqlite";
     
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
@@ -249,4 +249,14 @@ async fn get_all_books_successful() {
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
+}
+
+#[tokio::test]
+async fn list_books_with_search_successful() {
+
+}
+
+#[tokio::test]
+async fn list_books_with_search_wrong_params_successful() {
+
 }
