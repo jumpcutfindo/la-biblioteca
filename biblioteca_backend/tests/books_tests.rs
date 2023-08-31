@@ -12,8 +12,8 @@ mod mocker;
 async fn add_book_correct_parameters_successful() {
     let database_path = "add_book_correct_parameters_successful.sqlite";
 
-    let author = MockCatalog::new_author();
-    let book = MockCatalog::new_book();
+    let author = MockCatalog::new_author().build();
+    let book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -57,8 +57,8 @@ async fn add_book_correct_parameters_successful() {
 async fn add_book_wrong_parameters_unsuccessful() {
     let database_path = "add_book_wrong_parameters_unsuccessful.sqlite";
 
-    let author = MockCatalog::new_author();
-    let book = MockCatalog::new_book();
+    let author = MockCatalog::new_author().build();
+    let book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -93,8 +93,8 @@ async fn add_book_wrong_parameters_unsuccessful() {
 async fn add_book_missing_parameters_unsuccessful() {
     let database_path = "add_book_missing_parameters_unsuccessful.sqlite";
 
-    let author = MockCatalog::new_author();
-    let book = MockCatalog::new_book();
+    let author = MockCatalog::new_author().build();
+    let book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -128,8 +128,8 @@ async fn add_book_missing_parameters_unsuccessful() {
 async fn add_book_additional_parameters_successful() {
     let database_path = "add_book_additional_parameters_successful.sqlite";
 
-    let author = MockCatalog::new_author();
-    let book = MockCatalog::new_book();
+    let author = MockCatalog::new_author().build();
+    let book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -174,10 +174,11 @@ async fn add_book_invalid_author_unsuccessful() {
     let correct_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769f").unwrap();
     let incorrect_uuid = Uuid::parse_str("1120489e-19a8-498a-a99d-63fc6b32769e").unwrap();
 
-    let mut author = MockCatalog::new_author();
-    author.id = correct_uuid;
+    let mut author = MockCatalog::new_author()
+        .id(correct_uuid)
+        .build();
 
-    let book = MockCatalog::new_book();
+    let book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -212,10 +213,10 @@ async fn add_book_invalid_author_unsuccessful() {
 async fn get_all_books_successful() {
     let database_path = "get_all_books_successful.sqlite";
     
-    let author = MockCatalog::new_author();
-    let book_a = MockCatalog::new_book();
-    let book_b = MockCatalog::new_book();
-    let book_c = MockCatalog::new_book();
+    let author = MockCatalog::new_author().build();
+    let book_a = MockCatalog::new_book().build();
+    let book_b = MockCatalog::new_book().build();
+    let book_c = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
