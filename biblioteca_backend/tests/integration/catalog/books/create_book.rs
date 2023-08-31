@@ -60,11 +60,6 @@ async fn create_book_correct_parameters_successful() {
             "checking if book was added properly"
         );
         assert_eq!(
-            querier.contains_author(&author),
-            true,
-            "checking if author was added properly"
-        );
-        assert_eq!(
             querier.contains_book_author_mapping(&created_book.id, &author.id),
             true,
             "checking if book to author mapping exists"
@@ -205,6 +200,11 @@ async fn create_book_additional_parameters_successful() {
             querier.contains_book(&created_book),
             true,
             "checking if book was added properly"
+        );
+        assert_eq!(
+            querier.contains_book_author_mapping(&created_book.id, &author.id),
+            true,
+            "checking if book to author mapping exists"
         );
     }
 
