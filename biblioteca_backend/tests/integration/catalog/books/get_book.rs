@@ -49,7 +49,7 @@ async fn get_book_book_exists_successful() {
 }
 
 #[tokio::test]
-async fn get_book_book_no_exists_failure() {
+async fn get_book_non_existent_book_failure() {
     let database_path = "get_book_book_no_exists_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
