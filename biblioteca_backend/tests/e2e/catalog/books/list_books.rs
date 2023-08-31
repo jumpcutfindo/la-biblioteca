@@ -37,11 +37,11 @@ async fn list_books_successful() {
     assert_eq!(response.status(), StatusCode::OK, "checking if response is OK");
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
-    let created_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
+    let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
  
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(querier.contains_num_books(created_books.len() as i32), true, "checking if book count is correct");
+        assert_eq!(querier.contains_num_books(returned_books.len() as i32), true, "checking if book count is correct");
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
