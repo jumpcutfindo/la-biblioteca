@@ -15,7 +15,7 @@ async fn create_book_correct_parameters_successful() {
     let database_path = "create_book_correct_parameters_successful.sqlite";
 
     let author = MockCatalog::new_author().build();
-    let book = MockCatalog::new_book().build();
+    let original_book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -31,9 +31,9 @@ async fn create_book_correct_parameters_successful() {
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
-                        "name": book.name,
-                        "description": book.description,
-                        "language": book.language,
+                        "name": original_book.name,
+                        "description": original_book.description,
+                        "language": original_book.language,
                         "author_id": author.id,
                     }))
                     .unwrap(),
@@ -51,16 +51,22 @@ async fn create_book_correct_parameters_successful() {
 
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_book: Book = serde_json::from_slice(&body).unwrap();
+    let expected_book = Book {
+        id: created_book.id,
+        name: original_book.name,
+        description: original_book.description,
+        language: original_book.language,
+    };
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
         assert_eq!(
-            querier.contains_book(&created_book),
+            querier.contains_book(&expected_book),
             true,
             "checking if book was added properly"
         );
         assert_eq!(
-            querier.contains_book_author_mapping(&created_book.id, &author.id),
+            querier.contains_book_author_mapping(&expected_book.id, &author.id),
             true,
             "checking if book to author mapping exists"
         );
@@ -74,7 +80,7 @@ async fn create_book_wrong_parameters_failure() {
     let database_path = "create_book_wrong_parameters_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
-    let book = MockCatalog::new_book().build();
+    let original_book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -90,9 +96,9 @@ async fn create_book_wrong_parameters_failure() {
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
-                        "name_incorrect": book.name,
-                        "description": book.description,
-                        "language": book.language,
+                        "name_incorrect": original_book.name,
+                        "description": original_book.description,
+                        "language": original_book.language,
                         "author_id": author.id,
                     }))
                     .unwrap(),
@@ -116,7 +122,7 @@ async fn create_book_missing_parameters_failure() {
     let database_path = "create_book_missing_parameters_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
-    let book = MockCatalog::new_book().build();
+    let original_book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -132,8 +138,8 @@ async fn create_book_missing_parameters_failure() {
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
-                        "name": book.name,
-                        "language": book.language,
+                        "name": original_book.name,
+                        "language": original_book.language,
                         "author_id": author.id,
                     }))
                     .unwrap(),
@@ -157,7 +163,7 @@ async fn create_book_additional_parameters_successful() {
     let database_path = "create_book_additional_parameters_successful.sqlite";
 
     let author = MockCatalog::new_author().build();
-    let book = MockCatalog::new_book().build();
+    let original_book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -173,9 +179,9 @@ async fn create_book_additional_parameters_successful() {
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
-                        "name": book.name,
-                        "description": book.description,
-                        "language": book.language,
+                        "name": original_book.name,
+                        "description": original_book.description,
+                        "language": original_book.language,
                         "author_id": author.id,
                         "additional_parameter": "hello world".to_string()
                     }))
@@ -191,18 +197,25 @@ async fn create_book_additional_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_book: Book = serde_json::from_slice(&body).unwrap();
+    let expected_book = Book {
+        id: created_book.id,
+        name: original_book.name,
+        description: original_book.description,
+        language: original_book.language,
+    };
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
         assert_eq!(
-            querier.contains_book(&created_book),
+            querier.contains_book(&expected_book),
             true,
             "checking if book was added properly"
         );
         assert_eq!(
-            querier.contains_book_author_mapping(&created_book.id, &author.id),
+            querier.contains_book_author_mapping(&expected_book.id, &author.id),
             true,
             "checking if book to author mapping exists"
         );
@@ -219,7 +232,7 @@ async fn create_book_invalid_author_failure() {
 
     let author = MockCatalog::new_author().id(correct_uuid).build();
 
-    let book = MockCatalog::new_book().build();
+    let original_book = MockCatalog::new_book().build();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
@@ -235,9 +248,9 @@ async fn create_book_invalid_author_failure() {
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
-                        "name": book.name,
-                        "description": book.description,
-                        "language": book.language,
+                        "name": original_book.name,
+                        "description": original_book.description,
+                        "language": original_book.language,
                         "author_id": incorrect_uuid,
                     }))
                     .unwrap(),
