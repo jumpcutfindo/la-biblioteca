@@ -56,6 +56,8 @@ async fn get_book_non_existent_book_failure() {
     let book_a = MockCatalog::new_book().build();
     let book_b = MockCatalog::new_book().build();
 
+    let incorrect_id = Uuid::new_v4();
+
     let db = MockDatabaseBuilder::create(database_path.to_string())
         .with_author(&author)
         .with_book(&book_a, &author.id)
@@ -68,7 +70,7 @@ async fn get_book_non_existent_book_failure() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri(format!("/books/{}", Uuid::new_v4()))
+                .uri(format!("/books/{}", incorrect_id))
                 .body(Body::empty())
                 .unwrap(),
         )
