@@ -147,12 +147,12 @@ pub async fn list_authors_from_db(
     let mut stmt_string = String::from("SELECT * FROM authors WHERE 1=1");
 
     if params.contains_key("name") {
-        stmt_string.push_str(&format!(" AND name LIKE %{}%", params.get("name").unwrap()));
+        stmt_string.push_str(&format!(" AND name LIKE '%{}%'", params.get("name").unwrap()));
     }
 
     if params.contains_key("country") {
         stmt_string.push_str(&format!(
-            " AND country LIKE %{}%",
+            " AND country LIKE '%{}%'",
             params.get("country").unwrap()
         ));
     }
