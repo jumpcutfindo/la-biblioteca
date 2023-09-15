@@ -45,7 +45,7 @@ pub struct UpdateBookRequest {
     pub author_id: Uuid,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Author {
     pub id: Uuid,
     pub name: String,
