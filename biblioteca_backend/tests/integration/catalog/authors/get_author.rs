@@ -1,4 +1,4 @@
-use biblioteca_backend::catalog::model::{Book, Author};
+use biblioteca_backend::catalog::model::Author;
 use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 use uuid::Uuid;
