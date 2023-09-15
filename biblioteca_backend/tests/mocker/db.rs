@@ -91,6 +91,17 @@ impl MockDatabaseQuerier {
         }
     }
 
+    pub fn contains_num_authors(&self, num: i32) -> bool {
+        match self.pool.get().unwrap().query_row::<i32, _, _>(
+            "SELECT COUNT(*) FROM authors",
+            (),
+            |row| Ok(row.get(0)?),
+        ) {
+            Ok(count) => return count == num,
+            Err(_) => return false,
+        }
+    }
+
     pub fn contains_book(&self, book: &Book) -> bool {
         match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM books WHERE id = ?1 AND name = ?2 AND description = ?3 AND language = ?4", 
