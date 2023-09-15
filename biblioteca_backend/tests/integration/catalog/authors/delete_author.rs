@@ -101,4 +101,6 @@ async fn delete_author_non_existent_author_successful() {
             "checking if no authors were deleted"
         );
     }
+    
+    MockDatabaseBuilder::teardown(database_path.to_string());
 }
