@@ -116,7 +116,7 @@ async fn update_book_non_existent_book_failure() {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
         
         assert_eq!(
-            querier.contains_num_books(2),
+            querier.contains_book(&book_a) && querier.contains_book(&book_b),
             true,
             "checking if book table was not affected"
         );
