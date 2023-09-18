@@ -51,7 +51,7 @@ async fn get_author_author_exists_successful() {
 
 #[tokio::test]
 async fn get_author_non_existent_author_failure() {
-    let database_path = "get_author_author_exists_successful.sqlite";
+    let database_path = "get_author_non_existent_author_failure.sqlite";
 
     let author = MockCatalog::new_author().build();
     let book_a = MockCatalog::new_book().build();
