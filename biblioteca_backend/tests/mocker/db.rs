@@ -2,8 +2,9 @@ use std::fs::remove_file;
 
 use biblioteca_backend::{
     catalog::model::{Author, Book},
-    database::setup_db,
+    database::setup_db, users::model::User, library::model::BookBorrowState,
 };
+use chrono::{DateTime, Utc};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use uuid::Uuid;
@@ -57,6 +58,32 @@ impl MockDatabaseBuilder {
             .execute(
                 "INSERT INTO map_books_to_authors (book_id, author_id) VALUES (?1, ?2)",
                 (&book.id, author_id),
+            )
+            .unwrap();
+
+        return self;
+    }
+
+    pub fn with_borrow_entry(self, entry_id: &Uuid, user: &User, book: &Book, timestamp: DateTime<Utc>) -> MockDatabaseBuilder {
+        self.connection
+            .get()
+            .unwrap()
+            .execute(
+                "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
+                (entry_id, &user.id, &book.id, timestamp, BookBorrowState::Borrowed),
+            )
+            .unwrap();
+
+        return self;
+    }
+
+    pub fn with_return_entry(self, entry_id: &Uuid, user: &User, book: &Book, timestamp: DateTime<Utc>) -> MockDatabaseBuilder {
+        self.connection
+            .get()
+            .unwrap()
+            .execute(
+                "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
+                (entry_id, &user.id, &book.id, timestamp, BookBorrowState::Returned),
             )
             .unwrap();
 

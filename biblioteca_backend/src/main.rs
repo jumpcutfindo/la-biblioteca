@@ -18,7 +18,7 @@ async fn main() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
-    let database_pool = setup_db(String::from("library.db")).unwrap();
+    let database_pool = setup_db(String::from("library.sqlite")).unwrap();
     let state = app::create_new_state(database_pool);
 
     let app = app::create_app(State(state));
