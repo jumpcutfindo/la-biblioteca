@@ -1,7 +1,6 @@
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::Result;
-use uuid::Uuid;
 
 pub fn setup_db(database_path: String) -> Result<Pool<SqliteConnectionManager>> {
     tracing::debug!("Setting up our in-memory, SQLite database...");
@@ -81,13 +80,6 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
             (),
         )
         .unwrap();
-
-    tracing::debug!("> Inserting some default roles into 'user_roles'...");
-    let binding = pool.get().unwrap();
-    let mut user_role_stmt = binding.prepare(
-        "INSERT OR IGNORE INTO user_roles (id, role_name, num_borrowable_books) VALUES (?1, ?2, ?3)"
-    )
-    .unwrap();
 
     tracing::debug!("> Creating table 'users'...");
     pool.get()
