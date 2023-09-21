@@ -79,7 +79,7 @@ impl MockDatabaseBuilder {
             .unwrap()
             .execute(
                 "INSERT INTO map_users_to_user_roles (user_id, user_role_id) VALUES (?1, ?2)",
-                (&user.id, &user.username),
+                (&user.id, &user_role.id),
             )
             .unwrap();
 
