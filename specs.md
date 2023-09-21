@@ -39,13 +39,16 @@ The following are the expected set of APIs to be used:
 
 ## User management
 
-| API                | Functionality                          |
-| ------------------ | -------------------------------------- |
-| `GET /users`       | Retrieves all users in the system      |
-| `GET /users/roles` | Retrieves all user roles in the system |
-| `GET /user/:id`    | Retrieves specific user in the system  |
-| `POST /users`      | Adds a user to the system              |
-| `DELETE /users`    | Removes a user from the system         |
+| API                   | Functionality                          |
+| --------------------- | -------------------------------------- |
+| `GET /users`          | Retrieves all users in the system      |
+| `GET /user/:id`       | Retrieves specific user in the system  |
+| `POST /users`         | Adds a user to the system              |
+| `DELETE /users`       | Removes a user from the system         |
+| `GET /users/roles`    | Retrieves all user roles in the system |
+| `GET /user/roles/:id` | Retrieves a specific user role         |
+| `POST /users/roles`   | Adds a user role to the system         |
+| `DELETE /users/roles` | Deletes a user role from the system    |
 
 ## Library management
 
