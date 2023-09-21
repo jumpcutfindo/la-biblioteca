@@ -122,8 +122,19 @@ pub async fn get_user_role_from_db(State(state): State<AppState>, id: Uuid) -> R
     )
 }
 
-pub async fn add_user_role_to_db(State(state): State<AppState>, user_role: UserRole) {
+pub async fn add_user_role_to_db(State(state): State<AppState>, user_role: UserRole) -> Result<UserRole, Error> {
+    let mut conn = state.db_pool.get().unwrap();
 
+    let tx = conn.transaction()?;
+
+    tx.execute(
+        "INSERT INTO user_roles (id, name, num_borrowable_books) VALUES (?1, ?2, ?3)",
+        (&user_role.id, &user_role.name, &user_role.num_borrowable_books),
+    )?;
+
+    tx.commit()?;
+
+    Ok(user_role)
 }
 
 pub async fn delete_user_role_from_db(State(state): State<AppState>, id: Uuid) {
