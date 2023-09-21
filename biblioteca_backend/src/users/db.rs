@@ -108,8 +108,18 @@ pub async fn list_user_roles_from_db(State(state): State<AppState>) -> Result<Ve
     Ok(user_roles)
 }
 
-pub async fn get_user_role_from_db(State(state): State<AppState>, id: Uuid) {
-
+pub async fn get_user_role_from_db(State(state): State<AppState>, id: Uuid) -> Result<UserRole> {
+    state.db_pool.get().unwrap().query_row(
+        "SELECT * FROM user_roles WHERE user_roles.id = $1",
+        [id],
+        |row| {
+            Ok(UserRole {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                num_borrowable_books: row.get(2)?,
+            })
+        },
+    )
 }
 
 pub async fn add_user_role_to_db(State(state): State<AppState>, user_role: UserRole) {
