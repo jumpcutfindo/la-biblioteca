@@ -89,28 +89,6 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
     )
     .unwrap();
 
-    user_role_stmt
-        .execute((
-            Uuid::parse_str("f4658962-1237-4518-b55c-1f44986a4604").unwrap(),
-            String::from("admin"),
-            0,
-        ))
-        .unwrap();
-    user_role_stmt
-        .execute((
-            Uuid::parse_str("ded1bba9-84aa-4138-8f71-b27cfe6a51a0").unwrap(),
-            String::from("adult_user"),
-            8,
-        ))
-        .unwrap();
-    user_role_stmt
-        .execute((
-            Uuid::parse_str("27b122ab-b9e7-4f9b-ad7e-368340cfec76").unwrap(),
-            String::from("child_user"),
-            4,
-        ))
-        .unwrap();
-
     tracing::debug!("> Creating table 'users'...");
     pool.get()
         .unwrap()
