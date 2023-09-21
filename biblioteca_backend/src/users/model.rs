@@ -20,6 +20,12 @@ pub struct CreateUserRequest {
     pub user_role_id: Uuid,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CreateUserRoleRequest {
+    pub name: String,
+    pub num_borrowable_books: i32,
+}
+
 #[derive(Debug, Serialize)]
 pub struct FullUser {
     pub id: Uuid,
