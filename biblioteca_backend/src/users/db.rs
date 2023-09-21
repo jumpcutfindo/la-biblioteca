@@ -33,25 +33,6 @@ pub async fn list_users_from_db(State(state): State<AppState>) -> Result<Vec<Ful
     Ok(users)
 }
 
-pub async fn list_user_roles_from_db(State(state): State<AppState>) -> Result<Vec<UserRole>> {
-    let conn = state.db_pool.get().unwrap();
-
-    let mut stmt = conn.prepare("SELECT * FROM user_roles")?;
-
-    let user_roles = stmt
-        .query_map([], |row| {
-            Ok(UserRole {
-                id: row.get(0)?,
-                name: row.get(1)?,
-                num_borrowable_books: row.get(2)?,
-            })
-        })?
-        .map(|user| user.unwrap())
-        .collect();
-
-    Ok(user_roles)
-}
-
 pub async fn get_user_from_db(State(state): State<AppState>, id: Uuid) -> Result<FullUser> {
     state.db_pool.get().unwrap().query_row(
         "SELECT a.id as user_id, a.username, c.id as user_role_id, c.role_name, c.num_borrowable_books 
@@ -106,4 +87,35 @@ pub async fn delete_user_from_db(State(state): State<AppState>, id: Uuid) -> Res
         .execute("DELETE FROM users WHERE id = $1", [id])?;
 
     Ok(())
+}
+
+pub async fn list_user_roles_from_db(State(state): State<AppState>) -> Result<Vec<UserRole>> {
+    let conn = state.db_pool.get().unwrap();
+
+    let mut stmt = conn.prepare("SELECT * FROM user_roles")?;
+
+    let user_roles = stmt
+        .query_map([], |row| {
+            Ok(UserRole {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                num_borrowable_books: row.get(2)?,
+            })
+        })?
+        .map(|user| user.unwrap())
+        .collect();
+
+    Ok(user_roles)
+}
+
+pub async fn get_user_role_from_db(State(state): State<AppState>, id: Uuid) {
+
+}
+
+pub async fn add_user_role_to_db(State(state): State<AppState>, user_role: UserRole) {
+
+}
+
+pub async fn delete_user_role_from_db(State(state): State<AppState>, id: Uuid) {
+
 }
