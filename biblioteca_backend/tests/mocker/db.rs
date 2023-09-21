@@ -2,7 +2,7 @@ use std::fs::remove_file;
 
 use biblioteca_backend::{
     catalog::model::{Author, Book},
-    database::setup_db, users::model::User, library::model::BookBorrowState,
+    database::setup_db, users::model::{User, UserRole}, library::model::BookBorrowState,
 };
 use chrono::{DateTime, Utc};
 use r2d2::Pool;
@@ -58,6 +58,28 @@ impl MockDatabaseBuilder {
             .execute(
                 "INSERT INTO map_books_to_authors (book_id, author_id) VALUES (?1, ?2)",
                 (&book.id, author_id),
+            )
+            .unwrap();
+
+        return self;
+    }
+
+    pub fn with_user(self, user: &User, user_role: &UserRole) -> MockDatabaseBuilder {
+        self.connection
+            .get()
+            .unwrap()
+            .execute(
+                "INSERT INTO users (id, username) VALUES (?1, ?2)",
+                (&user.id, &user.username),
+            )
+            .unwrap();
+
+        self.connection
+            .get()
+            .unwrap()
+            .execute(
+                "INSERT INTO map_users_to_user_roles (user_id, user_role_id) VALUES (?1, ?2)",
+                (&user.id, &user.username),
             )
             .unwrap();
 
