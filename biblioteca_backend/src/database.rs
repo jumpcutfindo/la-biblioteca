@@ -105,6 +105,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
                     ON DELETE CASCADE,
                 CONSTRAINT fk_user_roles
                     FOREIGN KEY(user_role_id) REFERENCES user_roles(id)
+                    ON DELETE CASCADE
             )",
             (),
         )
