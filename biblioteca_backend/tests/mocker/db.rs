@@ -200,4 +200,37 @@ impl MockDatabaseQuerier {
             Err(_) => return false,
         }
     }
+
+    pub fn contains_user(&self, user: &User) -> bool {
+        match self.pool.get().unwrap().query_row::<i32, _, _>(
+            "SELECT COUNT(*) FROM users WHERE id = ?1 AND username = ?2",
+            (&user.id, &user.username),
+            |row| Ok(row.get(0)?)
+        ) {
+            Ok(count) => return count == 1,
+            Err(_) => return false,
+        }
+    }
+
+    pub fn contains_user_role(&self, user_role: &UserRole) -> bool {
+        match self.pool.get().unwrap().query_row::<i32, _, _>(
+            "SELECT COUNT(*) FROM user_roles WHERE id = ?1 AND name = ?2 AND num_borrowable_books = ?3",
+            (&user_role.id, &user_role.name, &user_role.num_borrowable_books),
+            |row| Ok(row.get(0)?)
+        ) {
+            Ok(count) => return count == 1,
+            Err(_) => return false,
+        }
+    }
+
+    pub fn contains_user_user_role_mapping(&self, user_id: &Uuid, user_role_id: &Uuid) -> bool {
+        match self.pool.get().unwrap().query_row::<i32, _, _>(
+            "SELECT COUNT(*) FROM map_users_to_user_roles WHERE user_id = ?1 AND user_role_id = ?2",
+            (&user_id, &user_role_id),
+            |row| Ok(row.get(0)?)
+        ) {
+            Ok(count) => return count == 1,
+            Err(_) => return false,
+        }
+    }
 }
