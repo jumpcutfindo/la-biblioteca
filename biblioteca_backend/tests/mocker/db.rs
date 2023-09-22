@@ -86,6 +86,23 @@ impl MockDatabaseBuilder {
         return self;
     }
 
+    pub fn with_user_role(self, user_role: &UserRole) -> MockDatabaseBuilder {
+        self.connection
+            .get()
+            .unwrap()
+            .execute(
+                "INSERT INTO user_roles (id, name, num_borrowable_books) VALUES (?1, ?2, ?3)", 
+                (
+                    &user_role.id,
+                    &user_role.name,
+                    &user_role.num_borrowable_books,
+                )
+            )
+            .unwrap();
+
+        return self;
+    }
+
     pub fn with_borrow_entry(self, entry_id: &Uuid, user: &User, book: &Book, timestamp: DateTime<Utc>) -> MockDatabaseBuilder {
         self.connection
             .get()
