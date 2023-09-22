@@ -153,3 +153,18 @@ pub async fn delete_user_role_from_db(State(state): State<AppState>, id: Uuid) -
 
     Ok(())
 }
+
+pub fn is_username_valid_in_db(
+    State(state): &State<AppState>,
+    username: &String,
+) -> Result<bool, rusqlite::Error> {
+
+    match state.db_pool.get().unwrap().query_row::<i32, _, _>(
+        "SELECT COUNT(*) FROM users WHERE username = $1",
+        [username],
+        |row| Ok(row.get(0)?),
+    ) {
+        Ok(count) => return Ok(count == 0),
+        Err(err) => return Err(err),
+    }
+}
