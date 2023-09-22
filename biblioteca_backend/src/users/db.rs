@@ -10,7 +10,7 @@ pub async fn list_users_from_db(State(state): State<AppState>) -> Result<Vec<Ful
     let conn = state.db_pool.get().unwrap();
 
     let mut stmt = conn.prepare("
-        SELECT a.id as user_id, a.username, c.id as user_role_id, c.role_name, c.num_borrowable_books 
+        SELECT a.id as user_id, a.username, c.id as user_role_id, c.name, c.num_borrowable_books 
         FROM users a, map_users_to_user_roles b, user_roles c 
         WHERE a.id = b.user_id AND b.user_role_id = c.id"
     )?;
