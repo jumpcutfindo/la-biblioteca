@@ -84,4 +84,5 @@ async fn get_author_non_existent_author_failure() {
         "checking if response is correct"
     );
     
+    MockDatabaseBuilder::teardown(database_path.to_string());
 }
