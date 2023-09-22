@@ -126,6 +126,10 @@ pub async fn list_user_roles(state: State<AppState>) -> Result<Json<Vec<UserRole
 pub async fn add_user_role(state: State<AppState>, Json(payload): Json<CreateUserRoleRequest>) -> Result<Json<UserRole>, Error> {
     tracing::debug!("POST /users/roles with params: {:?}", payload);
 
+    if payload.num_borrowable_books < 0 {
+        return Err(Error::bad_request("num_borrowable_books must be zero or positive integer".to_string()));
+    }
+
     let user_role = UserRole {
         id: Uuid::new_v4(),
         name: payload.name,
