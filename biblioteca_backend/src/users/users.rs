@@ -8,7 +8,7 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{app::AppState, users::db::{get_user_role_from_db, add_user_role_to_db, delete_user_role_from_db}};
+use crate::{app::AppState, users::db::{get_user_role_from_db, add_user_role_to_db, delete_user_role_from_db, is_username_valid_in_db}};
 use crate::{
     error::Error,
     users::db::{
@@ -67,6 +67,11 @@ pub async fn add_user(
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<User>, Error> {
     tracing::debug!("POST /users with params: {:?}", payload);
+
+    if !is_username_valid_in_db(&state, &payload.username).unwrap() {
+        return Err(Error::bad_request("username already exists".to_string()));
+    }
+
     let user = User {
         id: Uuid::new_v4(),
         username: payload.username,
