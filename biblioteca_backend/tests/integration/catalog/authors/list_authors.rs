@@ -28,7 +28,7 @@ async fn list_authors_successful() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri("/books")
+                .uri("/authors")
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -47,7 +47,7 @@ async fn list_authors_successful() {
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
         assert_eq!(
-            querier.contains_num_books(returned_authors.len() as i32),
+            querier.contains_num_authors(returned_authors.len() as i32),
             true,
             "checking if book count is correct"
         );
