@@ -74,7 +74,7 @@ fn setup_user_tables(pool: &Pool<SqliteConnectionManager>) {
         .execute(
             "CREATE TABLE IF NOT EXISTS user_roles (
                 id                      BLOB PRIMARY KEY,
-                role_name               TEXT NOT NULL,
+                name               TEXT NOT NULL,
                 num_borrowable_books    INT NOT NULL
             )",
             (),

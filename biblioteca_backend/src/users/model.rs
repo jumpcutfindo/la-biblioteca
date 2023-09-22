@@ -7,7 +7,7 @@ pub struct User {
     pub username: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserRole {
     pub id: Uuid,
     pub name: String,
