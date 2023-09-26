@@ -8,6 +8,7 @@ use rusqlite::{
 use serde::Deserialize;
 use uuid::Uuid;
 
+#[derive(Copy, Clone)]
 pub enum BookBorrowState {
     Borrowed,
     Returned,
@@ -54,7 +55,7 @@ pub struct BookBorrowEntry {
     pub book_id: Uuid,
     pub user_id: Uuid,
     pub timestamp: DateTime<Utc>,
-    pub action: BookBorrowState,
+    pub state: BookBorrowState,
 }
 
 #[derive(Debug, Deserialize)]
