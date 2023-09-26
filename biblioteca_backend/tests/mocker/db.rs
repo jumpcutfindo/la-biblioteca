@@ -4,7 +4,7 @@ use biblioteca_backend::{
     catalog::model::{Author, Book},
     database::setup_db, users::model::{User, UserRole}, library::model::{BookBorrowState, BookBorrowEntry},
 };
-use chrono::{DateTime, Utc};
+
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use uuid::Uuid;
