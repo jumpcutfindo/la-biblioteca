@@ -10,21 +10,23 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  format-biblioteca-backend:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./biblioteca-backend
+    steps:
+      - name: Run formatter
+        run: cargo format
+      - name: Run clippy
+        run: cargo clippy
+  test-biblioteca-backend:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Build la-biblioteca backend
       working-directory: ./biblioteca_backend
-      run: cargo build --verbose
+      run: cargo build
     - name: Run tests
       working-directory: ./biblioteca_backend
-      run: cargo test --verbose && rm *.sqlite
-    - name: Run formatter
-      working-directory: ./biblioteca_backend
-      run: cargo format
-    - name: Run clippy
-      working-directory: ./biblioteca_backend
-      run: cargo clippy
+      run: cargo test
