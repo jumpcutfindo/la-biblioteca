@@ -12,13 +12,13 @@ env:
 jobs:
   format-biblioteca-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./biblioteca-backend
     steps:
+      - uses: actions/checkout@v3
       - name: Run formatter
+        working-directory: ./biblioteca-backend
         run: cargo format
       - name: Run clippy
+        working-directory: ./biblioteca-backend
         run: cargo clippy
   test-biblioteca-backend:
     runs-on: ubuntu-latest
