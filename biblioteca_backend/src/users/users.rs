@@ -1,11 +1,23 @@
 use std::collections::HashMap;
 
-use axum::{Router, routing::{get, delete, post}, extract::{State, Path, Query}, Json, http::StatusCode};
+use axum::{
+    extract::{Path, Query, State},
+    http::StatusCode,
+    routing::{delete, get, post},
+    Json, Router,
+};
 use uuid::Uuid;
 
-use crate::{AppState, error::Error, users::db::{get_user_from_db, add_user_to_db, list_users_from_db, list_user_roles_from_db, delete_user_from_db}};
+use crate::{app::AppState, users::db::{get_user_role_from_db, add_user_role_to_db, delete_user_role_from_db, is_username_valid_in_db}};
+use crate::{
+    error::Error,
+    users::db::{
+        add_user_to_db, delete_user_from_db, get_user_from_db, list_user_roles_from_db,
+        list_users_from_db,
+    },
+};
 
-use super::model::{User, CreateUserRequest, UserRole, FullUser};
+use super::model::{CreateUserRequest, FullUser, User, UserRole, CreateUserRoleRequest};
 
 pub fn users_router() -> Router<AppState> {
     Router::new()
@@ -13,64 +25,53 @@ pub fn users_router() -> Router<AppState> {
         .route("/users/:id", delete(delete_user))
         .route("/users", get(list_users))
         .route("/users", post(add_user))
+        .route("/users/roles/:id", get(get_user_role))
+        .route("/users/roles/:id", delete(delete_user_role))
+        .route("/users/roles", post(add_user_role))
         .route("/users/roles", get(list_user_roles))
+        
 }
 
-async fn get_user(
+pub async fn get_user(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<FullUser>, Error> {
     tracing::debug!("GET /users with id: {:?}", id);
 
     match get_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
-        Ok(user) => {
-            return Ok(Json(user))
-        },
+        Ok(user) => return Ok(Json(user)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::not_found())
+            return Err(Error::not_found());
         }
     }
 }
 
-async fn list_users(
+pub async fn list_users(
     state: State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<FullUser>>, Error> {
     tracing::debug!("GET /users with query params: {:?}", params);
 
     match list_users_from_db(state).await {
-        Ok(users) => {
-            return Ok(Json(users))
-        },
+        Ok(users) => return Ok(Json(users)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+            return Err(Error::server_issue());
         }
     }
 }
 
-async fn list_user_roles(
-    state: State<AppState>,
-) -> Result<Json<Vec<UserRole>>, Error> {
-    tracing::debug!("GET /users/roles");
-
-    match list_user_roles_from_db(state).await {
-        Ok(user_roles) => {
-            return Ok(Json(user_roles))
-        },
-        Err(err) => {
-            tracing::warn!("{}", err);
-            return Err(Error::server_issue())
-        }
-    }
-}
-
-async fn add_user(
+pub async fn add_user(
     state: State<AppState>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<User>, Error> {
     tracing::debug!("POST /users with params: {:?}", payload);
+
+    if !is_username_valid_in_db(&state, &payload.username).unwrap() {
+        return Err(Error::bad_request("username already exists".to_string()));
+    }
+
     let user = User {
         id: Uuid::new_v4(),
         username: payload.username,
@@ -79,9 +80,7 @@ async fn add_user(
     let user_role_id = payload.user_role_id;
 
     match add_user_to_db(state, user, user_role_id).await {
-        Ok(user) => {
-            return Ok(Json(user))
-        },
+        Ok(user) => return Ok(Json(user)),
         Err(err) => {
             tracing::warn!("{}", err);
 
@@ -90,19 +89,75 @@ async fn add_user(
     }
 }
 
-async fn delete_user(
+pub async fn delete_user(
     state: State<AppState>,
     Path(id): Path<String>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!("DELETE /users with id: {:?}", id);
 
     match delete_user_from_db(state, Uuid::parse_str(&id).unwrap()).await {
-        Ok(()) => {
-            return Ok(StatusCode::NO_CONTENT)
-        },
+        Ok(()) => return Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue())
+            return Err(Error::server_issue());
+        }
+    }
+}
+
+pub async fn get_user_role(state: State<AppState>, Path(id): Path<String>) -> Result<Json<UserRole>, Error> {
+    tracing::debug!("GET /users/roles with id: {:?}", id);
+
+    match get_user_role_from_db(state, Uuid::parse_str(&id).unwrap()).await {
+        Ok(user_role) => return Ok(Json(user_role)),
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::not_found());
+        }
+    }
+}
+
+pub async fn list_user_roles(state: State<AppState>) -> Result<Json<Vec<UserRole>>, Error> {
+    tracing::debug!("GET /users/roles");
+
+    match list_user_roles_from_db(state).await {
+        Ok(user_roles) => return Ok(Json(user_roles)),
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue());
+        }
+    }
+}
+
+pub async fn add_user_role(state: State<AppState>, Json(payload): Json<CreateUserRoleRequest>) -> Result<Json<UserRole>, Error> {
+    tracing::debug!("POST /users/roles with params: {:?}", payload);
+
+    if payload.num_borrowable_books < 0 {
+        return Err(Error::bad_request("num_borrowable_books must be zero or positive integer".to_string()));
+    }
+
+    let user_role = UserRole {
+        id: Uuid::new_v4(),
+        name: payload.name,
+        num_borrowable_books: payload.num_borrowable_books,
+    };
+
+    match add_user_role_to_db(state, user_role).await {
+        Ok(user_role) => return Ok(Json(user_role)),
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue());
+        }
+    }
+}
+
+pub async fn delete_user_role(state: State<AppState>, Path(id): Path<String>) -> Result<StatusCode, Error> {
+    tracing::debug!("DELETE /users/roles with id: {:?}", id);
+
+    match delete_user_role_from_db(state, Uuid::parse_str(&id).unwrap()).await {
+        Ok(()) => return Ok(StatusCode::NO_CONTENT),
+        Err(err) => {
+            tracing::warn!("{}", err);
+            return Err(Error::server_issue());
         }
     }
 }

@@ -1,12 +1,17 @@
-use std::{str::FromStr, convert::Infallible};
+use std::{convert::Infallible, str::FromStr};
 
 use chrono::{DateTime, Utc};
-use rusqlite::{ToSql, types::{FromSql, FromSqlResult, FromSqlError, ValueRef}};
+use rusqlite::{
+    types::{FromSql, FromSqlError, FromSqlResult, ValueRef},
+    ToSql,
+};
 use serde::Deserialize;
 use uuid::Uuid;
 
+#[derive(Copy, Clone)]
 pub enum BookBorrowState {
-    Borrowed, Returned
+    Borrowed,
+    Returned,
 }
 
 impl BookBorrowState {
@@ -38,7 +43,9 @@ impl ToSql for BookBorrowState {
 
 impl FromSql for BookBorrowState {
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
-        value.as_str()?.parse()
+        value
+            .as_str()?
+            .parse()
             .map_err(|e| FromSqlError::Other(Box::new(e)))
     }
 }
@@ -48,7 +55,7 @@ pub struct BookBorrowEntry {
     pub book_id: Uuid,
     pub user_id: Uuid,
     pub timestamp: DateTime<Utc>,
-    pub action: BookBorrowState,
+    pub state: BookBorrowState,
 }
 
 #[derive(Debug, Deserialize)]
