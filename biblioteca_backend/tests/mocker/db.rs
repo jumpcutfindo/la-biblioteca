@@ -2,7 +2,7 @@ use std::fs::remove_file;
 
 use biblioteca_backend::{
     catalog::model::{Author, Book},
-    database::setup_db, users::model::{User, UserRole}, library::model::BookBorrowState,
+    database::setup_db, users::model::{User, UserRole}, library::model::{BookBorrowState, BookBorrowEntry},
 };
 use chrono::{DateTime, Utc};
 use r2d2::Pool;
@@ -103,26 +103,13 @@ impl MockDatabaseBuilder {
         return self;
     }
 
-    pub fn with_borrow_entry(self, entry_id: &Uuid, user: &User, book: &Book, timestamp: DateTime<Utc>) -> MockDatabaseBuilder {
+    pub fn with_library_entry(self, book_borrow_entry: &BookBorrowEntry) -> MockDatabaseBuilder {
         self.connection
             .get()
             .unwrap()
             .execute(
                 "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
-                (entry_id, &user.id, &book.id, timestamp, BookBorrowState::Borrowed),
-            )
-            .unwrap();
-
-        return self;
-    }
-
-    pub fn with_return_entry(self, entry_id: &Uuid, user: &User, book: &Book, timestamp: DateTime<Utc>) -> MockDatabaseBuilder {
-        self.connection
-            .get()
-            .unwrap()
-            .execute(
-                "INSERT INTO map_users_to_borrowed_books (id, user_id, book_id, timestamp, action) VALUES (?1, ?2, ?3, ?4, ?5)",
-                (entry_id, &user.id, &book.id, timestamp, BookBorrowState::Returned),
+                (book_borrow_entry.id, &book_borrow_entry.user_id, &book_borrow_entry.book_id, book_borrow_entry.timestamp, book_borrow_entry.state),
             )
             .unwrap();
 
@@ -254,5 +241,33 @@ impl MockDatabaseQuerier {
             Ok(count) => return count == 1,
             Err(_) => return false,
         }
+    }
+
+    pub fn is_book_borrowed(&self, book_id: &Uuid) -> bool {
+        match self.pool.get().unwrap().query_row(
+            "SELECT * FROM map_users_to_borrowed_books WHERE book_id = ?1 ORDER BY timestamp DESC",
+            [book_id],
+            |row| {
+                Ok(BookBorrowEntry {
+                    id: row.get(0)?,
+                    user_id: row.get(1)?,
+                    book_id: row.get(2)?,
+                    timestamp: row.get(3)?,
+                    state: row.get(4)?,
+                })
+            },
+        ) {
+            Ok(entry) => {
+                match entry.state {
+                    BookBorrowState::Borrowed => return true,
+                    BookBorrowState::Returned => return false,
+                }
+            }
+            Err(_) => return false,
+        }
+    }
+
+    pub fn is_book_returned(&self, book_id: &Uuid) -> bool {
+        return !self.is_book_borrowed(book_id);
     }
 }
