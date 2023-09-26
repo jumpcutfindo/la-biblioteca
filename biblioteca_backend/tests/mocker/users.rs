@@ -18,26 +18,26 @@ pub struct MockUserRoleBuilder {
 
 impl MockUserBase {
     pub fn new_user() -> MockUserBuilder {
-        return MockUserBuilder {
+        MockUserBuilder {
             id: Uuid::new_v4(),
             username: Self::random_string(8, 16),
-        };
+        }
     }
 
     pub fn new_user_role() -> MockUserRoleBuilder {
         let mut rng = rand::thread_rng();
-        
-        return MockUserRoleBuilder {
+
+        MockUserRoleBuilder {
             id: Uuid::new_v4(),
             name: Self::random_string(8, 16),
             num_borrowable_books: rng.gen_range(2..4),
-        };
+        }
     }
 
     fn random_string(min: usize, max: usize) -> String {
         let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ".to_string();
         let mut rng = rand::thread_rng();
-        return generate(rng.gen_range(min..max), charset);
+        generate(rng.gen_range(min..max), charset)
     }
 }
 
@@ -53,10 +53,10 @@ impl MockUserBuilder {
     }
 
     pub fn build(self) -> User {
-        return User {
+        User {
             id: self.id,
             username: self.username,
-        };
+        }
     }
 }
 
@@ -77,10 +77,10 @@ impl MockUserRoleBuilder {
     }
 
     pub fn build(self) -> UserRole {
-        return UserRole {
+        UserRole {
             id: self.id,
             name: self.name,
             num_borrowable_books: self.num_borrowable_books,
-        };
+        }
     }
 }

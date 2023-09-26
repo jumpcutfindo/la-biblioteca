@@ -4,12 +4,12 @@ use r2d2_sqlite::SqliteConnectionManager;
 
 use crate::{
     catalog::{authors::authors_router, books::books_router},
-    library::library::library_router,
-    users::users::users_router,
+    library::controller::library_router,
+    users::controller::users_router,
 };
 
 pub fn create_new_state(db_pool: Pool<SqliteConnectionManager>) -> AppState {
-    return AppState { db_pool };
+    AppState { db_pool }
 }
 
 pub fn create_app(State(state): State<AppState>) -> Router {

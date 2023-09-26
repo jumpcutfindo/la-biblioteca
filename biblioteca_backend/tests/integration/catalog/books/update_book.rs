@@ -1,10 +1,14 @@
 use biblioteca_backend::catalog::model::Book;
-use hyper::{StatusCode, Body, Request, header};
+use hyper::{header, Body, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{app::create_mock_app, db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::MockCatalog};
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn update_book_correct_parameters_successful() {
@@ -35,7 +39,7 @@ async fn update_book_correct_parameters_successful() {
                         "language": book_a.language,
                         "author_id": author.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -48,7 +52,7 @@ async fn update_book_correct_parameters_successful() {
         description: book_a.description,
         language: book_a.language,
     };
-    
+
     assert_eq!(
         response.status(),
         StatusCode::NO_CONTENT,
@@ -57,14 +61,13 @@ async fn update_book_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        
-        assert_eq!(
+
+        assert!(
             querier.contains_book(&expected_book),
-            true,
             "checking if book was updated correctly"
         )
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -99,7 +102,7 @@ async fn update_book_non_existent_book_failure() {
                         "language": book_a.language,
                         "author_id": author.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -114,14 +117,13 @@ async fn update_book_non_existent_book_failure() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        
-        assert_eq!(
+
+        assert!(
             querier.contains_book(&book_a) && querier.contains_book(&book_b),
-            true,
             "checking if book table was not affected"
         );
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -154,19 +156,19 @@ async fn update_book_incorrect_parameters_failure() {
                         "language": book_a.language,
                         "author_id": author.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
         .await
         .unwrap();
-    
+
     assert_eq!(
         response.status(),
         StatusCode::UNPROCESSABLE_ENTITY,
         "checking if response is OK"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -198,19 +200,19 @@ async fn update_book_missing_parameters_failure() {
                         "language": book_a.language,
                         "author_id": author.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
         .await
         .unwrap();
-    
+
     assert_eq!(
         response.status(),
         StatusCode::UNPROCESSABLE_ENTITY,
         "checking if response is OK"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -245,13 +247,13 @@ async fn update_book_existing_author_successful() {
                         "language": book_b.language,
                         "author_id": author_a.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
         .await
         .unwrap();
-    
+
     assert_eq!(
         response.status(),
         StatusCode::NO_CONTENT,
@@ -260,16 +262,14 @@ async fn update_book_existing_author_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        
-        assert_eq!(
+
+        assert!(
             querier.contains_book(&book_b),
-            true,
             "checking if book was not affected"
         );
 
-        assert_eq!(
+        assert!(
             querier.contains_book_author_mapping(&book_b.id, &author_a.id),
-            true,
             "checking if book author mapping was updated correctly"
         );
     }
@@ -308,13 +308,13 @@ async fn update_book_non_existent_author_failure() {
                         "language": book_b.language,
                         "author_id": invalid_author_id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
         .await
         .unwrap();
-    
+
     assert_eq!(
         response.status(),
         StatusCode::BAD_REQUEST,
@@ -322,5 +322,4 @@ async fn update_book_non_existent_author_failure() {
     );
 
     MockDatabaseBuilder::teardown(database_path.to_string());
-
 }

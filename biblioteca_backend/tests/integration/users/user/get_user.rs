@@ -23,7 +23,7 @@ async fn get_user_user_exists_successful() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri(format!("/users/{}", user.id.to_string()))
+                .uri(format!("/users/{}", user.id))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -40,12 +40,11 @@ async fn get_user_user_exists_successful() {
     let returned_user: User = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_user.id == user.id, true);
+        assert!(returned_user.id == user.id);
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
-
 
 #[tokio::test]
 async fn get_user_non_existent_user_failure() {
@@ -53,7 +52,7 @@ async fn get_user_non_existent_user_failure() {
 
     let user_role = MockUserBase::new_user_role().build();
     let user = MockUserBase::new_user().build();
-    
+
     let incorrect_id = Uuid::new_v4();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
@@ -79,6 +78,6 @@ async fn get_user_non_existent_user_failure() {
         StatusCode::NOT_FOUND,
         "checking if response is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }

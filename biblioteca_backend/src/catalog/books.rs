@@ -35,12 +35,12 @@ async fn get_book(state: State<AppState>, Path(id): Path<String>) -> Result<Json
     tracing::debug!("GET /books with id: {:?}", id);
 
     match get_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(book) => return Ok(Json(book)),
+        Ok(book) => Ok(Json(book)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::not_found());
+            Err(Error::not_found())
         }
-    };
+    }
 }
 
 // Retrieves all books
@@ -51,10 +51,10 @@ async fn list_books(
     tracing::debug!("GET /books with query params: {:?}", params);
 
     match list_books_from_db(state, params).await {
-        Ok(books) => return Ok(Json(books)),
+        Ok(books) => Ok(Json(books)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -77,10 +77,10 @@ async fn create_book(
     }
 
     match add_book_to_db(state, book, payload.author_id).await {
-        Ok(book) => return Ok(Json(book)),
+        Ok(book) => Ok(Json(book)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -90,10 +90,10 @@ async fn delete_book(state: State<AppState>, Path(id): Path<String>) -> Result<S
     tracing::debug!("DELETE /books with id: {:?}", id);
 
     match delete_book_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(()) => return Ok(StatusCode::NO_CONTENT),
+        Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -118,10 +118,10 @@ async fn update_book(
     }
 
     match update_book_in_db(state, book, payload.author_id).await {
-        Ok(()) => return Ok(StatusCode::NO_CONTENT),
+        Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }

@@ -1,9 +1,12 @@
-use hyper::{Request, Body, StatusCode};
+use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{catalog::MockCatalog, db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app};
-
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn delete_author_existing_author_successful() {
@@ -18,7 +21,7 @@ async fn delete_author_existing_author_successful() {
         .with_book(&book_a, &author.id)
         .with_book(&book_b, &author.id)
         .build();
-    
+
     let app = create_mock_app(db);
 
     let response = app
@@ -40,19 +43,16 @@ async fn delete_author_existing_author_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
-            querier.contains_author(&author),
-            false,
+        assert!(
+            !querier.contains_author(&author),
             "checking if author was removed properly"
         );
-        assert_eq!(
-            querier.contains_book_author_mapping(&book_a.id, &author.id),
-            false,
+        assert!(
+            !querier.contains_book_author_mapping(&book_a.id, &author.id),
             "checking if book_a to author mapping doesn't exist"
         );
-        assert_eq!(
-            querier.contains_book_author_mapping(&book_b.id, &author.id),
-            false,
+        assert!(
+            !querier.contains_book_author_mapping(&book_b.id, &author.id),
             "checking if book_b to author mapping doesn't exist"
         );
     }
@@ -73,7 +73,7 @@ async fn delete_author_non_existent_author_successful() {
         .with_author(&author_a)
         .with_author(&author_b)
         .build();
-    
+
     let app = create_mock_app(db);
 
     let response = app
@@ -95,12 +95,11 @@ async fn delete_author_non_existent_author_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_num_authors(2),
-            true,
             "checking if no authors were deleted"
         );
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }

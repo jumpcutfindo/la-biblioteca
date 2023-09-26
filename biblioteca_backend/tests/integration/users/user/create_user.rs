@@ -1,9 +1,13 @@
 use biblioteca_backend::users::model::User;
-use hyper::{Request, Method, header, Body, StatusCode};
+use hyper::{header, Body, Method, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app, users::MockUserBase};
+use crate::mocker::{
+    app::create_mock_app,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    users::MockUserBase,
+};
 
 #[tokio::test]
 async fn create_user_correct_parameters_successful() {
@@ -29,7 +33,7 @@ async fn create_user_correct_parameters_successful() {
                         "username": user.username,
                         "user_role_id": user_role.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -41,7 +45,7 @@ async fn create_user_correct_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_user: User = serde_json::from_slice(&body).unwrap();
     let expected_user = User {
@@ -51,15 +55,13 @@ async fn create_user_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user(&expected_user),
-            true,
             "check if user was added properly",
         );
 
-        assert_eq!(
+        assert!(
             querier.contains_user_user_role_mapping(&created_user.id, &user_role.id),
-            true,
             "check if user to user role mapping was added properly"
         )
     }
@@ -91,7 +93,7 @@ async fn create_user_wrong_parameters_failure() {
                         "username_incorrect": user.username,
                         "user_role_id": user_role.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -130,7 +132,7 @@ async fn create_user_missing_parameters_failure() {
                     serde_json::to_string(&json!({
                         "username": user.username,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -171,7 +173,7 @@ async fn create_user_additional_parameters_successful() {
                         "user_role_id": user_role.id,
                         "additional_parameter": "hello world".to_string(),
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -183,7 +185,7 @@ async fn create_user_additional_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_user: User = serde_json::from_slice(&body).unwrap();
     let expected_user = User {
@@ -193,15 +195,13 @@ async fn create_user_additional_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user(&expected_user),
-            true,
             "check if user was added properly",
         );
 
-        assert_eq!(
+        assert!(
             querier.contains_user_user_role_mapping(&created_user.id, &user_role.id),
-            true,
             "check if user to user role mapping was added properly"
         )
     }
@@ -234,7 +234,7 @@ async fn create_user_existing_username_failure() {
                         "username": user.username,
                         "user_role_id": user_role.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )

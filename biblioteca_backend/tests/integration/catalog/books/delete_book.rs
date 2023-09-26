@@ -1,8 +1,12 @@
-use hyper::{StatusCode, Body, Request};
+use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::MockCatalog, app::create_mock_app};
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn delete_book_existing_book_successful() {
@@ -17,7 +21,7 @@ async fn delete_book_existing_book_successful() {
         .with_book(&book_a, &author.id)
         .with_book(&book_b, &author.id)
         .build();
-    
+
     let app = create_mock_app(db);
 
     let response = app
@@ -39,14 +43,12 @@ async fn delete_book_existing_book_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
-            querier.contains_book(&book_a),
-            false,
+        assert!(
+            !querier.contains_book(&book_a),
             "checking if book was removed properly"
         );
-        assert_eq!(
-            querier.contains_book_author_mapping(&book_a.id, &author.id),
-            false,
+        assert!(
+            !querier.contains_book_author_mapping(&book_a.id, &author.id),
             "checking if book to author mapping doesn't exist"
         );
     }
@@ -69,7 +71,7 @@ async fn delete_book_non_existent_book_successful() {
         .with_book(&book_a, &author.id)
         .with_book(&book_b, &author.id)
         .build();
-    
+
     let app = create_mock_app(db);
 
     let response = app
@@ -91,13 +93,11 @@ async fn delete_book_non_existent_book_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_num_books(2),
-            true,
             "checking if no books were deleted"
         );
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
-
 }

@@ -34,12 +34,12 @@ impl MockBookBuilder {
     }
 
     pub fn build(self) -> Book {
-        return Book {
+        Book {
             id: self.id,
             name: self.name,
             description: self.description,
             language: self.language,
-        };
+        }
     }
 }
 
@@ -72,37 +72,37 @@ impl MockAuthorBuilder {
     }
 
     pub fn build(self) -> Author {
-        return Author {
+        Author {
             id: self.id,
             name: self.name,
             description: self.description,
             country: self.country,
-        };
+        }
     }
 }
 
 impl MockCatalog {
     pub fn new_book() -> MockBookBuilder {
-        return MockBookBuilder {
+        MockBookBuilder {
             id: Uuid::new_v4(),
             name: Self::random_string(8, 24),
             description: Self::random_string(32, 64),
             language: Self::random_string(32, 64),
-        };
+        }
     }
 
     pub fn new_author() -> MockAuthorBuilder {
-        return MockAuthorBuilder {
+        MockAuthorBuilder {
             id: Uuid::new_v4(),
             name: Self::random_string(16, 24),
             description: Self::random_string(32, 64),
             country: Self::random_string(8, 16),
-        };
+        }
     }
 
     fn random_string(min: usize, max: usize) -> String {
         let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ".to_string();
         let mut rng = rand::thread_rng();
-        return generate(rng.gen_range(min..max), charset);
+        generate(rng.gen_range(min..max), charset)
     }
 }

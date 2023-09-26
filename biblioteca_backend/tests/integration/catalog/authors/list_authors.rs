@@ -11,7 +11,7 @@ use crate::mocker::{
 #[tokio::test]
 async fn list_authors_successful() {
     let database_path = "list_authors_successful.sqlite";
-    
+
     let author_a = MockCatalog::new_author().build();
     let author_b = MockCatalog::new_author().build();
     let author_c = MockCatalog::new_author().build();
@@ -40,15 +40,14 @@ async fn list_authors_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_authors: Vec<Author> = serde_json::from_slice(&body).unwrap();
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_num_authors(returned_authors.len() as i32),
-            true,
             "checking if book count is correct"
         );
     }
@@ -59,7 +58,7 @@ async fn list_authors_successful() {
 #[tokio::test]
 async fn list_authors_with_name_search_successful() {
     let database_path = "list_authors_with_name_search_successful.sqlite";
-    
+
     let author_a = MockCatalog::new_author()
         .name("Alex Adamson".to_string())
         .build();
@@ -94,15 +93,15 @@ async fn list_authors_with_name_search_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_authors: Vec<Author> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_authors.len() == 2, true);
+        assert!(returned_authors.len() == 2);
 
         for author in returned_authors.iter() {
-            assert_eq!(author.name.contains("Alex"), true);
+            assert!(author.name.contains("Alex"));
         }
     }
 
@@ -112,7 +111,7 @@ async fn list_authors_with_name_search_successful() {
 #[tokio::test]
 async fn list_authors_with_country_search_successful() {
     let database_path = "list_authors_with_country_search_successful.sqlite";
-    
+
     let author_a = MockCatalog::new_author()
         .country("Singapore".to_string())
         .build();
@@ -147,15 +146,15 @@ async fn list_authors_with_country_search_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_authors: Vec<Author> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_authors.len() == 2, true);
+        assert!(returned_authors.len() == 2);
 
         for author in returned_authors.iter() {
-            assert_eq!(author.country.contains("Singapore"), true);
+            assert!(author.country.contains("Singapore"));
         }
     }
 
@@ -165,7 +164,7 @@ async fn list_authors_with_country_search_successful() {
 #[tokio::test]
 async fn list_authors_with_search_wrong_params_successful() {
     let database_path = "list_authors_with_search_wrong_params_successful.sqlite";
-    
+
     let author_a = MockCatalog::new_author().build();
     let author_b = MockCatalog::new_author().build();
     let author_c = MockCatalog::new_author().build();
@@ -194,12 +193,12 @@ async fn list_authors_with_search_wrong_params_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_authors: Vec<Author> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_authors.len() == 3, true);
+        assert!(returned_authors.len() == 3);
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());

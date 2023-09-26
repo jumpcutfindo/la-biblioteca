@@ -1,9 +1,13 @@
 use biblioteca_backend::users::model::UserRole;
-use hyper::{Request, Method, header, Body, StatusCode};
+use hyper::{header, Body, Method, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app, users::MockUserBase};
+use crate::mocker::{
+    app::create_mock_app,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    users::MockUserBase,
+};
 
 #[tokio::test]
 async fn create_user_role_correct_parameters_successful() {
@@ -28,7 +32,7 @@ async fn create_user_role_correct_parameters_successful() {
                         "name": user_role.name,
                         "num_borrowable_books": user_role.num_borrowable_books,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -40,7 +44,7 @@ async fn create_user_role_correct_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_user_role: UserRole = serde_json::from_slice(&body).unwrap();
     let expected_user_role = UserRole {
@@ -51,9 +55,8 @@ async fn create_user_role_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user_role(&expected_user_role),
-            true,
             "check if user role was added properly",
         );
     }
@@ -84,7 +87,7 @@ async fn create_user_role_wrong_parameters_failure() {
                         "name_invalid": user_role.name,
                         "num_borrowable_books": user_role.num_borrowable_books,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -122,7 +125,7 @@ async fn create_user_role_missing_parameters_failure() {
                     serde_json::to_string(&json!({
                         "num_borrowable_books": user_role.num_borrowable_books,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -162,7 +165,7 @@ async fn create_user_role_additional_parameters_successful() {
                         "num_borrowable_books": user_role.num_borrowable_books,
                         "additional_parameter": "hello_world".to_string(),
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -174,7 +177,7 @@ async fn create_user_role_additional_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_user_role: UserRole = serde_json::from_slice(&body).unwrap();
     let expected_user_role = UserRole {
@@ -185,9 +188,8 @@ async fn create_user_role_additional_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user_role(&expected_user_role),
-            true,
             "check if user role was added properly",
         );
     }
@@ -220,7 +222,7 @@ async fn create_user_role_negative_borrowable_books_failure() {
                         "name": user_role.name,
                         "num_borrowable_books": user_role.num_borrowable_books,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )

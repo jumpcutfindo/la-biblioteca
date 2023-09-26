@@ -2,7 +2,9 @@ use std::fs::remove_file;
 
 use biblioteca_backend::{
     catalog::model::{Author, Book},
-    database::setup_db, users::model::{User, UserRole}, library::model::{BookBorrowState, BookBorrowEntry},
+    database::setup_db,
+    library::model::{BookBorrowEntry, BookBorrowState},
+    users::model::{User, UserRole},
 };
 
 use r2d2::Pool;
@@ -15,9 +17,9 @@ pub struct MockDatabaseBuilder {
 
 impl MockDatabaseBuilder {
     pub fn create(database_path: String) -> MockDatabaseBuilder {
-        return MockDatabaseBuilder {
+        MockDatabaseBuilder {
             connection: setup_db(database_path).unwrap(),
-        };
+        }
     }
 
     pub fn teardown(database_path: String) {
@@ -39,7 +41,7 @@ impl MockDatabaseBuilder {
             )
             .unwrap();
 
-        return self;
+        self
     }
 
     pub fn with_book(self, book: &Book, author_id: &Uuid) -> MockDatabaseBuilder {
@@ -61,7 +63,7 @@ impl MockDatabaseBuilder {
             )
             .unwrap();
 
-        return self;
+        self
     }
 
     pub fn with_user(self, user: &User, user_role: &UserRole) -> MockDatabaseBuilder {
@@ -83,7 +85,7 @@ impl MockDatabaseBuilder {
             )
             .unwrap();
 
-        return self;
+        self
     }
 
     pub fn with_user_role(self, user_role: &UserRole) -> MockDatabaseBuilder {
@@ -91,16 +93,16 @@ impl MockDatabaseBuilder {
             .get()
             .unwrap()
             .execute(
-                "INSERT INTO user_roles (id, name, num_borrowable_books) VALUES (?1, ?2, ?3)", 
+                "INSERT INTO user_roles (id, name, num_borrowable_books) VALUES (?1, ?2, ?3)",
                 (
                     &user_role.id,
                     &user_role.name,
                     &user_role.num_borrowable_books,
-                )
+                ),
             )
             .unwrap();
 
-        return self;
+        self
     }
 
     pub fn with_library_entry(self, book_borrow_entry: &BookBorrowEntry) -> MockDatabaseBuilder {
@@ -113,11 +115,11 @@ impl MockDatabaseBuilder {
             )
             .unwrap();
 
-        return self;
+        self
     }
 
     pub fn build(self) -> Pool<SqliteConnectionManager> {
-        return self.connection;
+        self.connection
     }
 }
 
@@ -128,19 +130,19 @@ pub struct MockDatabaseQuerier {
 impl MockDatabaseQuerier {
     pub fn create(database_path: String) -> MockDatabaseQuerier {
         let manager = SqliteConnectionManager::file(database_path);
-        return MockDatabaseQuerier {
+        MockDatabaseQuerier {
             pool: r2d2::Pool::new(manager).unwrap(),
-        };
+        }
     }
 
     pub fn contains_num_books(&self, num: i32) -> bool {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM books",
             (),
-            |row| Ok(row.get(0)?),
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == num,
-            Err(_) => return false,
+            Ok(count) => count == num,
+            Err(_) => false,
         }
     }
 
@@ -148,10 +150,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM authors",
             (),
-            |row| Ok(row.get(0)?),
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == num,
-            Err(_) => return false,
+            Ok(count) => count == num,
+            Err(_) => false,
         }
     }
 
@@ -159,10 +161,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM users",
             (),
-            |row| Ok(row.get(0)?),
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == num,
-            Err(_) => return false,
+            Ok(count) => count == num,
+            Err(_) => false,
         }
     }
 
@@ -170,10 +172,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM user_roles",
             (),
-            |row| Ok(row.get(0)?),
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == num,
-            Err(_) => return false,
+            Ok(count) => count == num,
+            Err(_) => false,
         }
     }
 
@@ -181,10 +183,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM books WHERE id = ?1 AND name = ?2 AND description = ?3 AND language = ?4", 
             (&book.id, &book.name, &book.description, &book.language),
-            |row| Ok(row.get(0)?)
+            |row| row.get(0)
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -192,10 +194,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32,_,_>(
             "SELECT COUNT(*) FROM authors WHERE id = ?1 AND name = ?2 AND description = ?3 AND country = ?4", 
             (&author.id, &author.name, &author.description, &author.country),
-            |row| Ok(row.get(0)?)
+            |row| row.get(0)
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -203,10 +205,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM map_books_to_authors WHERE book_id = ?1 AND author_id = ?2",
             (book_id, author_id),
-            |row| Ok(row.get(0)?),
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -214,10 +216,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM users WHERE id = ?1 AND username = ?2",
             (&user.id, &user.username),
-            |row| Ok(row.get(0)?)
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -225,10 +227,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM user_roles WHERE id = ?1 AND name = ?2 AND num_borrowable_books = ?3",
             (&user_role.id, &user_role.name, &user_role.num_borrowable_books),
-            |row| Ok(row.get(0)?)
+            |row| row.get(0)
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -236,10 +238,10 @@ impl MockDatabaseQuerier {
         match self.pool.get().unwrap().query_row::<i32, _, _>(
             "SELECT COUNT(*) FROM map_users_to_user_roles WHERE user_id = ?1 AND user_role_id = ?2",
             (&user_id, &user_role_id),
-            |row| Ok(row.get(0)?)
+            |row| row.get(0),
         ) {
-            Ok(count) => return count == 1,
-            Err(_) => return false,
+            Ok(count) => count == 1,
+            Err(_) => false,
         }
     }
 
@@ -257,17 +259,15 @@ impl MockDatabaseQuerier {
                 })
             },
         ) {
-            Ok(entry) => {
-                match entry.state {
-                    BookBorrowState::Borrowed => return true,
-                    BookBorrowState::Returned => return false,
-                }
-            }
-            Err(_) => return false,
+            Ok(entry) => match entry.state {
+                BookBorrowState::Borrowed => true,
+                BookBorrowState::Returned => false,
+            },
+            Err(_) => false,
         }
     }
 
     pub fn is_book_returned(&self, book_id: &Uuid) -> bool {
-        return !self.is_book_borrowed(book_id);
+        !self.is_book_borrowed(book_id)
     }
 }

@@ -147,7 +147,10 @@ pub async fn list_authors_from_db(
     let mut stmt_string = String::from("SELECT * FROM authors WHERE 1=1");
 
     if params.contains_key("name") {
-        stmt_string.push_str(&format!(" AND name LIKE '%{}%'", params.get("name").unwrap()));
+        stmt_string.push_str(&format!(
+            " AND name LIKE '%{}%'",
+            params.get("name").unwrap()
+        ));
     }
 
     if params.contains_key("country") {
@@ -235,9 +238,9 @@ pub fn is_author_exists_in_db(
     match state.db_pool.get().unwrap().query_row::<i32, _, _>(
         "SELECT COUNT(*) FROM authors WHERE id = $1",
         [author_id],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
-        Ok(count) => return Ok(count > 0),
-        Err(err) => return Err(err),
+        Ok(count) => Ok(count > 0),
+        Err(err) => Err(err),
     }
 }

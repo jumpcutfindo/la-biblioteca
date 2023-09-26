@@ -60,14 +60,12 @@ async fn create_book_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_book(&expected_book),
-            true,
             "checking if book was added properly"
         );
-        assert_eq!(
+        assert!(
             querier.contains_book_author_mapping(&expected_book.id, &author.id),
-            true,
             "checking if book to author mapping exists"
         );
     }
@@ -209,14 +207,12 @@ async fn create_book_additional_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_book(&expected_book),
-            true,
             "checking if book was added properly"
         );
-        assert_eq!(
+        assert!(
             querier.contains_book_author_mapping(&expected_book.id, &author.id),
-            true,
             "checking if book to author mapping exists"
         );
     }

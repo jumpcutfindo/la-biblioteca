@@ -1,9 +1,13 @@
 use biblioteca_backend::catalog::model::Author;
-use hyper::{Request, Method, header, Body, StatusCode};
+use hyper::{header, Body, Method, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 
-use crate::mocker::{catalog::MockCatalog, db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app};
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn create_author_correct_parameters_successful() {
@@ -11,8 +15,7 @@ async fn create_author_correct_parameters_successful() {
 
     let original_author = MockCatalog::new_author().build();
 
-    let db = MockDatabaseBuilder::create(database_path.to_string())
-        .build();
+    let db = MockDatabaseBuilder::create(database_path.to_string()).build();
 
     let app = create_mock_app(db);
 
@@ -28,7 +31,7 @@ async fn create_author_correct_parameters_successful() {
                         "description": original_author.description,
                         "country": original_author.country
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -52,9 +55,8 @@ async fn create_author_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_author(&expected_author),
-            true,
             "checking if the author was added properly"
         );
     }
@@ -68,8 +70,7 @@ async fn create_author_wrong_parameters_failure() {
 
     let original_author = MockCatalog::new_author().build();
 
-    let db = MockDatabaseBuilder::create(database_path.to_string())
-        .build();
+    let db = MockDatabaseBuilder::create(database_path.to_string()).build();
 
     let app = create_mock_app(db);
 
@@ -85,7 +86,7 @@ async fn create_author_wrong_parameters_failure() {
                         "description": original_author.description,
                         "country": original_author.country
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -107,8 +108,7 @@ async fn create_author_missing_paramaters_failure() {
 
     let original_author = MockCatalog::new_author().build();
 
-    let db = MockDatabaseBuilder::create(database_path.to_string())
-        .build();
+    let db = MockDatabaseBuilder::create(database_path.to_string()).build();
 
     let app = create_mock_app(db);
 
@@ -123,7 +123,7 @@ async fn create_author_missing_paramaters_failure() {
                         "description": original_author.description,
                         "country": original_author.country
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -145,8 +145,7 @@ async fn create_author_additional_parameters_successful() {
 
     let original_author = MockCatalog::new_author().build();
 
-    let db = MockDatabaseBuilder::create(database_path.to_string())
-        .build();
+    let db = MockDatabaseBuilder::create(database_path.to_string()).build();
 
     let app = create_mock_app(db);
 
@@ -163,7 +162,7 @@ async fn create_author_additional_parameters_successful() {
                         "country": original_author.country,
                         "additional_parameter": "hello world".to_string(),
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -175,7 +174,7 @@ async fn create_author_additional_parameters_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let created_author: Author = serde_json::from_slice(&body).unwrap();
     let expected_author = Author {
@@ -187,9 +186,8 @@ async fn create_author_additional_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_author(&expected_author),
-            true,
             "checking if the author was added properly"
         );
     }

@@ -86,10 +86,10 @@ pub async fn borrow_book(
     }
 
     match add_borrow_entry_to_db(state, payload.user_id, book_id).await {
-        Ok(()) => return Ok(StatusCode::ACCEPTED),
+        Ok(()) => Ok(StatusCode::ACCEPTED),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -153,10 +153,10 @@ pub async fn return_book(
     }
 
     match add_return_entry_to_db(state, entry_id, payload.user_id, book_id).await {
-        Ok(()) => return Ok(StatusCode::ACCEPTED),
+        Ok(()) => Ok(StatusCode::ACCEPTED),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }

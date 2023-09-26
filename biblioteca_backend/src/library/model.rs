@@ -1,4 +1,4 @@
-use std::{convert::Infallible, str::FromStr};
+use std::{convert::Infallible, fmt::Display, str::FromStr};
 
 use chrono::{DateTime, Utc};
 use rusqlite::{
@@ -14,11 +14,11 @@ pub enum BookBorrowState {
     Returned,
 }
 
-impl BookBorrowState {
-    fn to_string(&self) -> String {
-        match *self {
-            BookBorrowState::Borrowed => String::from("Borrowed"),
-            BookBorrowState::Returned => String::from("Returned"),
+impl Display for BookBorrowState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BookBorrowState::Borrowed => write!(f, "Borrowed"),
+            BookBorrowState::Returned => write!(f, "Returned"),
         }
     }
 }

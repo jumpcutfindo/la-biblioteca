@@ -25,7 +25,7 @@ async fn get_book_book_exists_successful() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri(format!("/books/{}", book_a.id.to_string()))
+                .uri(format!("/books/{}", book_a.id))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -42,7 +42,7 @@ async fn get_book_book_exists_successful() {
     let returned_book: Book = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_book.id == book_a.id, true);
+        assert!(returned_book.id == book_a.id);
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());

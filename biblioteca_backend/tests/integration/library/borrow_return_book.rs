@@ -34,9 +34,8 @@ async fn borrow_book_return_book_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.is_book_returned(&book.id),
-            true,
             "checking if book is returned",
         );
     }
@@ -82,12 +81,11 @@ async fn borrow_multiple_books_return_multiple_books_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.is_book_borrowed(&book_a.id)
                 && querier.is_book_borrowed(&book_d.id)
                 && querier.is_book_returned(&book_b.id)
                 && querier.is_book_returned(&book_c.id),
-            true,
             "checking if book is returned",
         );
     }

@@ -39,34 +39,34 @@ impl MockBookBorrowEntryBuilder {
     }
 
     pub fn build(self) -> BookBorrowEntry {
-        return BookBorrowEntry {
+        BookBorrowEntry {
             id: self.id,
             book_id: self.book_id,
             user_id: self.user_id,
             timestamp: self.timestamp,
             state: self.state,
-        };
+        }
     }
 }
 
 impl MockLibrary {
     pub fn new_borrow_entry() -> MockBookBorrowEntryBuilder {
-        return MockBookBorrowEntryBuilder {
+        MockBookBorrowEntryBuilder {
             id: Uuid::new_v4(),
             book_id: Uuid::new_v4(),
             user_id: Uuid::new_v4(),
             timestamp: Utc::now(),
             state: BookBorrowState::Borrowed,
-        };
+        }
     }
 
     pub fn new_return_entry() -> MockBookBorrowEntryBuilder {
-        return MockBookBorrowEntryBuilder {
+        MockBookBorrowEntryBuilder {
             id: Uuid::new_v4(),
             book_id: Uuid::new_v4(),
             user_id: Uuid::new_v4(),
             timestamp: Utc::now(),
             state: BookBorrowState::Returned,
-        };
+        }
     }
 }
