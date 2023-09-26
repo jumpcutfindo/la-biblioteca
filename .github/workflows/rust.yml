@@ -19,7 +19,7 @@ jobs:
         run: cargo fmt
       - name: Run clippy
         working-directory: ./biblioteca_backend
-        run: cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
   test-biblioteca-backend:
     runs-on: ubuntu-latest
     steps:
