@@ -61,7 +61,7 @@ pub async fn borrow_book(
     // Check whether book is available for borrowing
     match get_latest_book_entry_from_db(&state, book_id) {
         Ok(entry) => {
-            let latest_entry = entry.action;
+            let latest_entry = entry.state;
 
             // If entry exists, check if it's "Borrowed"
             match latest_entry {
@@ -121,7 +121,7 @@ pub async fn return_book(
     // Check if the book is currently returned
     match get_latest_book_entry_from_db(&state, book_id) {
         Ok(entry) => {
-            let latest_entry = entry.action;
+            let latest_entry = entry.state;
 
             // If entry exists, check if it's "Returned"
             match latest_entry {

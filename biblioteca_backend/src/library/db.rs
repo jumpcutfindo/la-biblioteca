@@ -53,7 +53,7 @@ pub fn get_latest_book_entry_from_db(
                 user_id: row.get(1)?,
                 book_id: row.get(2)?,
                 timestamp: row.get(3)?,
-                action: row.get(4)?,
+                state: row.get(4)?,
             })
         },
     ) {
