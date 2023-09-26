@@ -1,8 +1,12 @@
-use hyper::{Request, Body, StatusCode};
+use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app, users::MockUserBase};
+use crate::mocker::{
+    app::create_mock_app,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    users::MockUserBase,
+};
 
 #[tokio::test]
 async fn delete_user_role_existing_role_successful() {
@@ -39,21 +43,18 @@ async fn delete_user_role_existing_role_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
-            querier.contains_user_role(&user_role),
-            false,
+        assert!(
+            !querier.contains_user_role(&user_role),
             "checking if user_role was removed properly"
         );
 
-        assert_eq!(
-            querier.contains_user_user_role_mapping(&user_a.id, &user_role.id),
-            false,
+        assert!(
+            !querier.contains_user_user_role_mapping(&user_a.id, &user_role.id),
             "checking if user_a to user_role mapping was removed properly"
         );
 
-        assert_eq!(
-            querier.contains_user_user_role_mapping(&user_b.id, &user_role.id),
-            false,
+        assert!(
+            !querier.contains_user_user_role_mapping(&user_b.id, &user_role.id),
             "checking if user_b to user_role mapping was removed properly"
         );
     }
@@ -96,9 +97,8 @@ async fn delete_user_role_non_existent_role_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user_role(&user_role_a) && querier.contains_user_role(&user_role_b),
-            true,
             "checking if no user roles were removed"
         );
     }

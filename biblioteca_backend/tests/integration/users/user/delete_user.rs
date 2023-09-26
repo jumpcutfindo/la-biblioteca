@@ -1,8 +1,12 @@
-use hyper::{Request, Body, StatusCode};
+use hyper::{Body, Request, StatusCode};
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app, users::MockUserBase};
+use crate::mocker::{
+    app::create_mock_app,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    users::MockUserBase,
+};
 
 #[tokio::test]
 async fn delete_user_existing_user_successful() {
@@ -39,15 +43,13 @@ async fn delete_user_existing_user_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
-            querier.contains_user(&user_a),
-            false,
+        assert!(
+            !querier.contains_user(&user_a),
             "checking if user was removed properly"
         );
 
-        assert_eq!(
-            querier.contains_user_user_role_mapping(&user_a.id, &user_role.id),
-            false,
+        assert!(
+            !querier.contains_user_user_role_mapping(&user_a.id, &user_role.id),
             "checking if user_a to user_role mapping was removed properly"
         );
     }
@@ -90,9 +92,8 @@ async fn delete_user_non_existent_user_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_user(&user),
-            true,
             "checking if no users were removed"
         );
     }

@@ -27,15 +27,15 @@ impl Error {
     }
 
     pub fn not_found() -> Self {
-        return Error::NotFound(NotFound {});
+        Error::NotFound(NotFound {})
     }
 
     pub fn bad_request(message: String) -> Self {
-        return Error::BadRequest(BadRequest { message: message });
+        Error::BadRequest(BadRequest { message })
     }
 
     pub fn server_issue() -> Self {
-        return Error::ServerIssue(ServerIssue {});
+        Error::ServerIssue(ServerIssue {})
     }
 }
 

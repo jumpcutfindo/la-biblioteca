@@ -4,13 +4,14 @@ use tower::ServiceExt;
 
 use crate::mocker::{
     app::create_mock_app,
-    db::{MockDatabaseBuilder, MockDatabaseQuerier}, users::MockUserBase,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    users::MockUserBase,
 };
 
 #[tokio::test]
 async fn list_users_successful() {
     let database_path = "list_users_successful.sqlite";
-    
+
     let user_role = MockUserBase::new_user_role().build();
     let user_a = MockUserBase::new_user().build();
     let user_b = MockUserBase::new_user().build();
@@ -41,15 +42,14 @@ async fn list_users_successful() {
         StatusCode::OK,
         "checking if response is OK"
     );
-    
+
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let returned_users: Vec<FullUser> = serde_json::from_slice(&body).unwrap();
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_num_users(returned_users.len() as i32),
-            true,
             "checking if user count is correct"
         );
     }

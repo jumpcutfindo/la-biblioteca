@@ -33,10 +33,10 @@ async fn get_author(state: State<AppState>, Path(id): Path<String>) -> Result<Js
     tracing::debug!("GET /authors with id: {:?}", id);
 
     match get_author_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(author) => return Ok(Json(author)),
+        Ok(author) => Ok(Json(author)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::not_found());
+            Err(Error::not_found())
         }
     }
 }
@@ -48,10 +48,10 @@ async fn list_authors(
     tracing::debug!("GET /authors with query params: {:?}", params);
 
     match list_authors_from_db(state, params).await {
-        Ok(authors) => return Ok(Json(authors)),
+        Ok(authors) => Ok(Json(authors)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -70,10 +70,10 @@ async fn create_author(
     };
 
     match add_author_to_db(state, author).await {
-        Ok(author) => return Ok(Json(author)),
+        Ok(author) => Ok(Json(author)),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -85,10 +85,10 @@ async fn delete_author(
     tracing::debug!("DELETE /authors with id: {:?}", id);
 
     match delete_author_from_db(state, Uuid::from_str(&id).unwrap()).await {
-        Ok(()) => return Ok(StatusCode::NO_CONTENT),
+        Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }
@@ -108,10 +108,10 @@ async fn update_author(
     };
 
     match update_author_in_db(state, author).await {
-        Ok(()) => return Ok(StatusCode::NO_CONTENT),
+        Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(err) => {
             tracing::warn!("{}", err);
-            return Err(Error::server_issue());
+            Err(Error::server_issue())
         }
     }
 }

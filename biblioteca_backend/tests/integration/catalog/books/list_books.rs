@@ -48,9 +48,8 @@ async fn list_books_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.contains_num_books(returned_books.len() as i32),
-            true,
             "checking if book count is correct"
         );
     }
@@ -106,9 +105,9 @@ async fn list_books_with_name_search_successful() {
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_books.len() == 2, true);
+        assert!(returned_books.len() == 2);
         for book in returned_books.iter() {
-            assert_eq!(book.name.contains("Alice"), true);
+            assert!(book.name.contains("Alice"));
         }
     }
 
@@ -163,9 +162,9 @@ async fn list_books_with_language_search_successful() {
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_books.len() == 2, true);
+        assert!(returned_books.len() == 2);
         for book in returned_books.iter() {
-            assert_eq!(book.language.contains("English"), true);
+            assert!(book.language.contains("English"));
         }
     }
 
@@ -212,7 +211,7 @@ async fn list_books_with_search_wrong_params_successful() {
     let returned_books: Vec<Book> = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_books.len() == 3, true);
+        assert!(returned_books.len() == 3);
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());

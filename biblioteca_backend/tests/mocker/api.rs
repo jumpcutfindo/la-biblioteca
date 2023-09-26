@@ -8,6 +8,6 @@ pub struct BibliotecaApiResponse {
 
 impl BibliotecaApiResponse {
     pub fn is_correct(&self, expected_code: u16, expected_substring: String) -> bool {
-        return self.code == expected_code && self.message.contains(&expected_substring);
+        self.code == expected_code && self.message.contains(&expected_substring)
     }
 }

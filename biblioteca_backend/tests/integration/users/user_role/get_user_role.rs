@@ -23,7 +23,7 @@ async fn get_user_role_role_exists_successful() {
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri(format!("/users/roles/{}", user_role_a.id.to_string()))
+                .uri(format!("/users/roles/{}", user_role_a.id))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -40,12 +40,11 @@ async fn get_user_role_role_exists_successful() {
     let returned_user_role: UserRole = serde_json::from_slice(&body).unwrap();
 
     {
-        assert_eq!(returned_user_role.id == user_role_a.id, true);
+        assert!(returned_user_role.id == user_role_a.id);
     }
 
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
-
 
 #[tokio::test]
 async fn get_user_role_non_existent_role_failure() {
@@ -53,7 +52,7 @@ async fn get_user_role_non_existent_role_failure() {
 
     let user_role_a = MockUserBase::new_user_role().build();
     let user_role_b = MockUserBase::new_user_role().build();
-    
+
     let incorrect_id = Uuid::new_v4();
 
     let db = MockDatabaseBuilder::create(database_path.to_string())
@@ -79,6 +78,6 @@ async fn get_user_role_non_existent_role_failure() {
         StatusCode::NOT_FOUND,
         "checking if response is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }

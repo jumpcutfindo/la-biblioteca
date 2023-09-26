@@ -6,5 +6,5 @@ use r2d2_sqlite::SqliteConnectionManager;
 pub fn create_mock_app(db_pool: Pool<SqliteConnectionManager>) -> Router {
     let state = AppState { db_pool };
 
-    return create_app(State(state));
+    create_app(State(state))
 }

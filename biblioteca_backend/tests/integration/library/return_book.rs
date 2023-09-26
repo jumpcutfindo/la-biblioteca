@@ -1,10 +1,17 @@
 use chrono::Duration;
-use hyper::{Request, Body, StatusCode, header};
+use hyper::{header, Body, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{users::MockUserBase, catalog::MockCatalog, db::{MockDatabaseBuilder, MockDatabaseQuerier}, app::create_mock_app, library::MockLibrary, api::BibliotecaApiResponse};
+use crate::mocker::{
+    api::BibliotecaApiResponse,
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+    library::MockLibrary,
+    users::MockUserBase,
+};
 
 #[tokio::test]
 async fn return_book_can_return_successful() {
@@ -39,7 +46,7 @@ async fn return_book_can_return_successful() {
                     serde_json::to_string(&json!({
                         "user_id": user.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -54,13 +61,12 @@ async fn return_book_can_return_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        assert_eq!(
+        assert!(
             querier.is_book_returned(&book.id),
-            true,
             "checking if book is returned",
         )
     }
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -99,7 +105,7 @@ async fn return_book_user_not_same_failure() {
                     serde_json::to_string(&json!({
                         "user_id": user_b.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -115,12 +121,11 @@ async fn return_book_user_not_same_failure() {
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let api_response: BibliotecaApiResponse = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(
+    assert!(
         api_response.is_correct(40001, "book was not borrowed by given user".to_string()),
-        true,
         "checking if API response message is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -152,7 +157,7 @@ async fn return_book_book_non_existent_failure() {
                     serde_json::to_string(&json!({
                         "user_id": user.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -168,12 +173,11 @@ async fn return_book_book_non_existent_failure() {
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let api_response: BibliotecaApiResponse = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(
+    assert!(
         api_response.is_correct(40001, "book does not exist".to_string()),
-        true,
         "checking if API response message is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -212,7 +216,7 @@ async fn return_book_user_non_existent_failure() {
                     serde_json::to_string(&json!({
                         "user_id": incorrect_user_id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -228,12 +232,11 @@ async fn return_book_user_non_existent_failure() {
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let api_response: BibliotecaApiResponse = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(
+    assert!(
         api_response.is_correct(40001, "user does not exist".to_string()),
-        true,
         "checking if API response message is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -276,7 +279,7 @@ async fn return_book_book_already_returned_failure() {
                     serde_json::to_string(&json!({
                         "user_id": user.id,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -292,11 +295,10 @@ async fn return_book_book_already_returned_failure() {
     let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
     let api_response: BibliotecaApiResponse = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(
+    assert!(
         api_response.is_correct(40001, "book has already been returned".to_string()),
-        true,
         "checking if API response message is correct"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }

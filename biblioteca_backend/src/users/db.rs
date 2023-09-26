@@ -9,10 +9,11 @@ use super::model::{FullUser, User, UserRole};
 pub async fn list_users_from_db(State(state): State<AppState>) -> Result<Vec<FullUser>> {
     let conn = state.db_pool.get().unwrap();
 
-    let mut stmt = conn.prepare("
+    let mut stmt = conn.prepare(
+        "
         SELECT a.id as user_id, a.username, c.id as user_role_id, c.name, c.num_borrowable_books 
         FROM users a, map_users_to_user_roles b, user_roles c 
-        WHERE a.id = b.user_id AND b.user_role_id = c.id"
+        WHERE a.id = b.user_id AND b.user_role_id = c.id",
     )?;
 
     let users = stmt
@@ -38,19 +39,20 @@ pub async fn get_user_from_db(State(state): State<AppState>, id: Uuid) -> Result
         "SELECT a.id as user_id, a.username, c.id as user_role_id, c.name, c.num_borrowable_books 
         FROM users a, map_users_to_user_roles b, user_roles c 
         WHERE a.id = b.user_id AND b.user_role_id = c.id
-        AND a.id = $1", 
+        AND a.id = $1",
         [id],
-    |row| {
-        Ok(FullUser {
-            id: row.get(0)?,
-            username: row.get(1)?,
-            user_role: UserRole {
-                id: row.get(2)?,
-                name: row.get(3)?,
-                num_borrowable_books: row.get(4)?,
-            }
-        })
-    })
+        |row| {
+            Ok(FullUser {
+                id: row.get(0)?,
+                username: row.get(1)?,
+                user_role: UserRole {
+                    id: row.get(2)?,
+                    name: row.get(3)?,
+                    num_borrowable_books: row.get(4)?,
+                },
+            })
+        },
+    )
 }
 
 pub async fn add_user_to_db(
@@ -158,13 +160,12 @@ pub fn is_username_valid_in_db(
     State(state): &State<AppState>,
     username: &String,
 ) -> Result<bool, rusqlite::Error> {
-
     match state.db_pool.get().unwrap().query_row::<i32, _, _>(
         "SELECT COUNT(*) FROM users WHERE username = $1",
         [username],
-        |row| Ok(row.get(0)?),
+        |row| row.get(0),
     ) {
-        Ok(count) => return Ok(count == 0),
-        Err(err) => return Err(err),
+        Ok(count) => Ok(count == 0),
+        Err(err) => Err(err),
     }
 }

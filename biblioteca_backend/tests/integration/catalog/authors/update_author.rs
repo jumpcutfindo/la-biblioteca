@@ -1,11 +1,14 @@
 use biblioteca_backend::catalog::model::Author;
-use hyper::{StatusCode, Body, Request, header};
+use hyper::{header, Body, Request, StatusCode};
 use serde_json::json;
 use tower::ServiceExt;
 use uuid::Uuid;
 
-use crate::mocker::{app::create_mock_app, db::{MockDatabaseBuilder, MockDatabaseQuerier}, catalog::MockCatalog};
-
+use crate::mocker::{
+    app::create_mock_app,
+    catalog::MockCatalog,
+    db::{MockDatabaseBuilder, MockDatabaseQuerier},
+};
 
 #[tokio::test]
 async fn update_author_correct_parameters_successful() {
@@ -37,7 +40,7 @@ async fn update_author_correct_parameters_successful() {
                         "description": new_author.description,
                         "country": new_author.country,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -48,7 +51,7 @@ async fn update_author_correct_parameters_successful() {
         id: author.id,
         name: new_author.name,
         description: new_author.description,
-        country: new_author.country
+        country: new_author.country,
     };
 
     assert_eq!(
@@ -59,10 +62,9 @@ async fn update_author_correct_parameters_successful() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-        
-        assert_eq!(
+
+        assert!(
             querier.contains_author(&expected_author),
-            true,
             "checking if author was updated correctly"
         )
     }
@@ -98,7 +100,7 @@ async fn update_author_non_existent_author_failure() {
                         "description": author_a.description,
                         "country": author_a.country,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -113,10 +115,9 @@ async fn update_author_non_existent_author_failure() {
 
     {
         let querier = MockDatabaseQuerier::create(database_path.to_string());
-    
-        assert_eq!(
+
+        assert!(
             querier.contains_author(&author_a) && querier.contains_author(&author_b),
-            true,
             "checking if author table was not affected"
         );
     }
@@ -150,7 +151,7 @@ async fn update_author_incorrect_parameters_failure() {
                         "description": author_a.description,
                         "country": author_a.country,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -162,7 +163,7 @@ async fn update_author_incorrect_parameters_failure() {
         StatusCode::UNPROCESSABLE_ENTITY,
         "checking if response is OK"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
 
@@ -191,7 +192,7 @@ async fn update_author_missing_parameters_failure() {
                         "name": author_a.name,
                         "description": author_a.description,
                     }))
-                    .unwrap()
+                    .unwrap(),
                 ))
                 .unwrap(),
         )
@@ -203,6 +204,6 @@ async fn update_author_missing_parameters_failure() {
         StatusCode::UNPROCESSABLE_ENTITY,
         "checking if response is OK"
     );
-    
+
     MockDatabaseBuilder::teardown(database_path.to_string());
 }
