@@ -52,7 +52,9 @@ The following are the expected set of APIs to be used:
 
 ## Library management
 
-| API                      | Functionality                             |
-| ------------------------ | ----------------------------------------- |
-| `POST /books/:id/borrow` | Borrows a specified book from the catalog |
-| `POST /books/:id/return` | Returns a specified book from the catalog |
+| API                             | Functionality                                               |
+| ------------------------------- | ----------------------------------------------------------- |
+| `GET /library/book/:id`         | Retrieves the borrow and return history of a specified book |
+| `GET /library/user/:id`         | Retrieves the borrow and return history of a specified user |
+| `POST /library/book/:id/borrow` | Borrows a specified book from the catalog                   |
+| `POST /library/book/:id/return` | Returns a specified book from the catalog                   |
