@@ -120,13 +120,13 @@ paths:
       responses:
         200:
           description: OK
-  /library/logs/books/{id}:
+  /library/loans/books/{id}:
     get:
       summary: Retrieves the loan history of a specified book
       responses:
         200:
           description: OK
-  /library/logs/users/{id}:
+  /library/loans/users/{id}:
     get:
       summary: Retrieves the loan history of a specified user
       responses:
