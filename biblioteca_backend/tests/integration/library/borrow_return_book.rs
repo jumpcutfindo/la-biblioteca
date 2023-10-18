@@ -98,7 +98,7 @@ async fn borrow_book_with_api(app: &mut Router, user_id: Uuid, book_id: Uuid) {
     app.call(
         Request::builder()
             .method("POST")
-            .uri(format!("/books/{}/borrow", book_id))
+            .uri(format!("/borrow/books/{}", book_id))
             .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
             .body(Body::from(
                 serde_json::to_string(&json!({
@@ -116,7 +116,7 @@ async fn return_book_with_api(app: &mut Router, user_id: Uuid, book_id: Uuid) {
     app.call(
         Request::builder()
             .method("POST")
-            .uri(format!("/books/{}/return", book_id))
+            .uri(format!("/return/books/{}", book_id))
             .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
             .body(Body::from(
                 serde_json::to_string(&json!({

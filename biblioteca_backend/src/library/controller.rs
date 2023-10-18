@@ -23,8 +23,8 @@ use super::{db::add_return_entry_to_db, model::BorrowBookRequest};
 
 pub fn library_router() -> Router<AppState> {
     Router::new()
-        .route("/books/:id/borrow", post(borrow_book))
-        .route("/books/:id/return", post(return_book))
+        .route("/borrow/books/:id", post(borrow_book))
+        .route("/return/books/:id", post(return_book))
 }
 
 // TODO: Update all Path objects to be Uuid instead of string
@@ -34,7 +34,7 @@ pub async fn borrow_book(
     Json(payload): Json<BorrowBookRequest>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!(
-        "POST /books/:id/borrow for user_id {:?} and book_id {:?}",
+        "POST /borrow/books/:id for user_id {:?} and book_id {:?}",
         payload.user_id,
         book_id
     );
@@ -100,7 +100,7 @@ pub async fn return_book(
     Json(payload): Json<BorrowBookRequest>,
 ) -> Result<StatusCode, Error> {
     tracing::debug!(
-        "POST /books/:id/return for user_id {:?} and book_id {:?}",
+        "POST /return/books/:id for user_id {:?} and book_id {:?}",
         payload.user_id,
         book_id
     );

@@ -40,7 +40,7 @@ async fn return_book_can_return_successful() {
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri(format!("/books/{}/return", book.id))
+                .uri(format!("/return/books/{}", book.id))
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
@@ -99,7 +99,7 @@ async fn return_book_user_not_same_failure() {
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri(format!("/books/{}/return", book.id))
+                .uri(format!("/return/books/{}", book.id))
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
@@ -151,7 +151,7 @@ async fn return_book_book_non_existent_failure() {
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri(format!("/books/{}/return", incorrect_book_id))
+                .uri(format!("/return/books/{}", incorrect_book_id))
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
@@ -210,7 +210,7 @@ async fn return_book_user_non_existent_failure() {
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri(format!("/books/{}/return", book.id))
+                .uri(format!("/return/books/{}", book.id))
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
@@ -273,7 +273,7 @@ async fn return_book_book_already_returned_failure() {
         .oneshot(
             Request::builder()
                 .method("POST")
-                .uri(format!("/books/{}/return", book.id))
+                .uri(format!("/return/books/{}", book.id))
                 .header(header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                 .body(Body::from(
                     serde_json::to_string(&json!({
