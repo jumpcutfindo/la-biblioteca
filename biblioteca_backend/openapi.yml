@@ -1,0 +1,134 @@
+openapi: "3.0.2"
+info:
+  title: La Biblioteca API
+  description: API for La Biblioteca's backend, which provides functionalities emulating the behaviour of a library
+  version: "1.0"
+paths:
+  /books:
+    get:
+      summary: Retrieves a list of books present in the catalog
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Adds a book to the catalog
+      responses:
+        200:
+          description: OK
+  /books/{id}:
+    get:
+      summary: Retrieves the full details of a specified book in the catalog
+      responses:
+        200:
+          description: OK
+    put:
+      summary: Updates an existing book in the catalog
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Deletes a specified book from the catalog
+      responses:
+        200:
+          description: OK
+  /authors:
+    get:
+      summary: Retrieves a list of authors present in the catalog
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Adds an author to the catalog
+      responses:
+        200:
+          description: OK
+  /authors/{id}:
+    get:
+      summary: Retrieves the full details of an author in the catalog
+      responses:
+        200:
+          description: OK
+    put:
+      summary: Updates an existing author's information in the catalog
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Deletes a specified author from the catalog
+      responses:
+        200:
+          description: OK
+  /authors/{id}/books:
+    get:
+      summary: Retrieves a list of books that were written by the specified author
+      responses:
+        200:
+          description: OK
+  /users:
+    get:
+      summary: Retrieves a list of users in the system
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Adds a specified user to the system
+      responses:
+        200:
+          description: OK
+  /users/{id}:
+    get:
+      summary: Retrieves the full details of a user in the system
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Deletes a specified user from the system
+      responses:
+        200:
+          description: OK
+  /users/roles:
+    get:
+      summary: Retrieves a list of user roles in the system
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Adds a specified user role to the system
+      responses:
+        200:
+          description: OK
+  /users/roles/{id}:
+    get:
+      summary: Retrieves the full details of a user role in the system
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Deletes a specified user role from the system
+      responses:
+        200:
+          description: OK
+  /borrow/books/{id}:
+    post:
+      summary: Borrows a specified book from the catalog
+      responses:
+        200:
+          description: OK
+  /return/books/{id}:
+    post:
+      summary: Returns a specified book to the catalog
+      responses:
+        200:
+          description: OK
+  /library/logs/books/{id}:
+    get:
+      summary: Retrieves the loan history of a specified book
+      responses:
+        200:
+          description: OK
+  /library/logs/users/{id}:
+    get:
+      summary: Retrieves the loan history of a specified user
+      responses:
+        200:
+          description: OK
